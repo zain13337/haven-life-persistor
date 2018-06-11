@@ -1013,7 +1013,7 @@ describe('Banking from pgsql Example', function () {
         }).catch(function(e) {done(e)});
     });
     it ('can log in a closed loop', function () {
-        var date = new Date('11/11/2010');
+        var date = new Date('2010-11-11T00:00:00.000Z');
         var output = '';
 
         sam = new Customer('Sam', 'M', 'Elsamman');
@@ -1045,7 +1045,7 @@ describe('Banking from pgsql Example', function () {
         sam.amorphic.logger.warn({foo: 'bar6', woopie: {yea: true, oh: date}}, 'hot dog');
 
         console.log(output);
-        var result = '(foo="bar1")(permFoo="permBar1"foo="bar2")(foo="bar3")(permFoo="childFoo"foo="bar4")(foo="bar5")(foo="bar6"woopie={"yea":true,"oh":"2010-11-11T05:00:00.000Z"})(foo="bar6"woopie={"yea":true,"oh":"2010-11-11T05:00:00.000Z"})';
+        var result = '(foo="bar1")(permFoo="permBar1"foo="bar2")(foo="bar3")(permFoo="childFoo"foo="bar4")(foo="bar5")(foo="bar6"woopie={"yea":true,"oh":"2010-11-11T00:00:00.000Z"})(foo="bar6"woopie={"yea":true,"oh":"2010-11-11T00:00:00.000Z"})';
 
         expect(output).to.equal(result);
         sam.amorphic.logger = oldSendToLog;
