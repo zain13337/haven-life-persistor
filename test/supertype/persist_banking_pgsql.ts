@@ -115,7 +115,7 @@ var schemaTable = 'index_schema_history';
 describe('Banking from pgsql Example', function () {
 
     var knex;
-    
+
     it ('gets @supertypeClass({}) parameters passed through', function () {
         expect(Account['__toClient__']).to.equal(false);
         expect(Account['__toServer__']).to.equal(true);
@@ -126,7 +126,7 @@ describe('Banking from pgsql Example', function () {
                     client: 'pg',
                     connection: {
                         host     : '127.0.0.1',
-                        database : 'persistor_banking',
+                        database : 'test',
                         user: 'postgres',
                         password: 'postgres'
 
