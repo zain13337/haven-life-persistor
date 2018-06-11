@@ -4,8 +4,6 @@
  *
  */
 
-declare function require(name:string);
-
 import {Persistor} from '../../index.js';
 
 var persistor = Persistor.create();
@@ -13,20 +11,14 @@ persistor.debugInfo = 'api;conflict;write;read;data';//'api;io';
 persistor.debugInfo = 'conflict;data';//'api;io';
 persistor.logger.setLevel('debug');
 
-
 import { expect } from 'chai';
-import * as mocha from 'mocha';
 import * as _ from 'underscore';
 import {Customer} from "./Customer";
 import {ExtendedCustomer} from "./ExtendedCustomer";
 import Promise = require('bluebird');
 import {Role} from "./Role";
 import {Account} from "./Account";
-import {ReturnedMail} from "./ReturnedMail";
-import {Address} from "./Address";
-import {Transaction, Debit, Credit, Xfer} from './Transaction';
-
-
+import {Transaction, Xfer} from './Transaction';
 
 var schema = {
     Customer: {
