@@ -1,5 +1,6 @@
 var expect = require('chai').expect;
-var ObjectTemplate = require('supertype');
+debugger;
+var ObjectTemplate = require('supertype').default;
 var PersistObjectTemplate = require('../index.js')(ObjectTemplate, null, ObjectTemplate);
 
 /* Teacher Student Example */
@@ -110,10 +111,3 @@ describe('Freeze Dried Arks', function () {
     })
 
 });
-
-
-
-
-
-
-

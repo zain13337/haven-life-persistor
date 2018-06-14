@@ -10,7 +10,7 @@ It is automatically installed with Amorphic
 
 First create some object templates (many-to-many example) 
 
-    var ObjectTemplate = require('supertype');
+    var ObjectTemplate = require('supertype').default;
     var PersistObjectTemplate = require('persistor')(ObjectTemplate, null, ObjectTemplate);
 
     var Customer = PersistObjectTemplate.create("customer:Customer", {
@@ -128,6 +128,3 @@ The account object connected to the fetched role is also automatically when a ro
 ## License
 
 superType is licensed under the MIT license
-
-
-

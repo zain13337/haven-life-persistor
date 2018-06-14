@@ -3,3 +3,7 @@ node_modules
 npm-debug.log
 download
 coverage
+**.js.map
+test/supertype/*.js
+test/supertype/*.js.map
+lib/persistable.js

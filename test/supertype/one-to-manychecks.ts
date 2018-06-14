@@ -1,6 +1,6 @@
 
 declare function require(name:string);
-var ObjectTemplate = require('supertype');
+var ObjectTemplate = require('supertype').default;
 var PersistObjectTemplate = require('../../index.js')(ObjectTemplate, null, ObjectTemplate);
 
 PersistObjectTemplate.debugInfo = 'api;conflict;write;read;data';//'api;io';

@@ -5,7 +5,7 @@
     "version": "2.3.14",
     "dependencies": {
         "q": "1.x",
-        "supertype": "2.2.*",
+        "supertype": "haven-life/supertype#swat/feature/typescript",
         "underscore": "1.x",
         "mongodb-bluebird": "x",
         "bluebird": "x",
@@ -42,12 +42,13 @@
     "scripts": {
         "lint": "eslint .",
         "coverage": "istanbul cover _mocha -- test/* -R spec",
-        "test": "mocha test/*.js",
+        "test": "mocha test/persist_banking_pgsql.js --grep 'can create the data'",
+        "debugJSTests": "mocha --inspect-brk test/*.js",
         "test:compiled:js": "mocha test/supertype/persist_banking_pgsql.js",
         "test:config": "mocha test/config",
         "test:example": "mocha test/example",
         "test:ts": "mocha --compilers ts:ts-node/register test/supertype/persist_banking_pgsql.ts",
-        "compile": "tsc"
+        "compile": "./node_modules/typescript/bin/tsc"
     },
     "bugs": {
         "url": "http://github.com/selsamman/persistor/issues"
