@@ -12,6 +12,7 @@
     "emitDecoratorMetadata": true
   },
   "include": [
-    "./node_modules/supertype"
+    "./node_modules/supertype",
+    "./test/supertype"
   ]
 }

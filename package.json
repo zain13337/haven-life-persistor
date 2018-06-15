@@ -42,12 +42,13 @@
     "scripts": {
         "lint": "eslint .",
         "coverage": "istanbul cover _mocha -- test/* -R spec",
-        "test": "mocha test/persist_banking_pgsql.js --grep 'can create the data'",
-        "debugJSTests": "mocha --inspect-brk test/*.js",
+        "test": "mocha test/*.js",
+        "debug:test": "mocha --inspect-brk test/*.js",
         "test:compiled:js": "mocha test/supertype/persist_banking_pgsql.js",
         "test:config": "mocha test/config",
         "test:example": "mocha test/example",
         "test:ts": "mocha --compilers ts:ts-node/register test/supertype/persist_banking_pgsql.ts",
+        "debug:test:ts": "mocha --inspect-brk --compilers ts:ts-node/register test/supertype/persist_banking_pgsql.ts",
         "compile": "./node_modules/typescript/bin/tsc"
     },
     "bugs": {
