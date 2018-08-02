@@ -1,4 +1,4 @@
-## 2.3.17
+## 2.4.0
 * Minor changes to accommodate knex upgrade.
 ## 2.3.16
 * getObjectId should only use template name when generating the object ids for the objects loaded from the database.
