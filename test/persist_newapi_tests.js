@@ -8,15 +8,8 @@ chai.use(chaiAsPromised);
 
 var Promise = require('bluebird');
 
-var knex = require('knex')({
-    client: 'pg',
-    connection: {
-        host: '127.0.0.1',
-        database: 'test',
-        user: 'postgres',
-        password: 'postgres'
-    }
-});
+var knexInit = require('knex');
+var knex;
 
 var schema = {};
 var schemaTable = 'index_schema_history';
@@ -25,6 +18,15 @@ var PersistObjectTemplate, ObjectTemplate;
 
 describe('persistor transaction checks', function () {
     before('drop schema table once per test suit', function() {
+        knex = knexInit({
+            client: 'pg',
+            connection: {
+                host: process.env.dbPath,
+                database: process.env.dbName,
+                user: process.env.dbUser,
+                password: process.env.dbPassword,
+            }
+        });
         return Promise.all([
 
             knex.schema.dropTableIfExists('tx_employee')
@@ -151,11 +153,7 @@ describe('persistor transaction checks', function () {
 
             function createRecords() {
                 var tx =  PersistObjectTemplate.beginDefaultTransaction();
-                var notifyPropertyChangedCallback = function(changes) {
-                    if (!changes) {
-                        throw Error('Not notifying changes for the new records..');
-                    }
-                };
+
                 return emp.persist({transaction: tx, cascade: false}).then(function() {
                     return PersistObjectTemplate.commit({transaction: tx, notifyChanges: true}).then(function() {
                         empId = emp._id;
@@ -320,13 +318,6 @@ describe('persistor transaction checks', function () {
 
         var tx =  PersistObjectTemplate.beginDefaultTransaction();
         return emp1.persist({transaction: tx, cascade: false}).then(function() {
-            var notifyPropertyChangedCallback = function(changes) {
-                expect(Object.keys(changes)).to.contain('Address');
-                expect(Object.keys(changes.Address[0])).to.contain('primaryKey');
-                expect(Object.keys(changes.Address[0])).to.contain('properties');
-                expect(Object.keys(changes.Address[0])).to.contain('table');
-            };
-
             return PersistObjectTemplate.commit().then(function() {
                 return Address.countFromPersistWithQuery().then(function(count) {
                     expect(count).to.equal(2);
