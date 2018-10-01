@@ -5,7 +5,7 @@
     "version": "2.4.1",
     "dependencies": {
         "q": "1.x",
-        "supertype": "haven-life/supertype#swat/feature/typescript",
+        "supertype": "3.0.0",
         "underscore": "1.x",
         "mongodb-bluebird": "x",
         "bluebird": "x",
@@ -50,7 +50,7 @@
         "test:config": "mocha test/config",
         "test:example": "mocha test/example",
         "test:ts": "mocha --compilers ts:ts-node/register test/supertype/persist_banking_pgsql.ts",
-        "debug:test:ts": "mocha --inspect-brk --compilers ts:ts-node/register test/supertype/persist_banking_pgsql.ts",
+        "test:ts:debug": "mocha --inspect-brk --compilers ts:ts-node/register test/supertype/persist_banking_pgsql.ts",
         "compile": "tsc && cp index.js dist/ && cp -R lib dist/"
     },
     "bugs": {
