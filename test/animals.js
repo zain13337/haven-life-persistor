@@ -1,5 +1,4 @@
 var expect = require('chai').expect;
-debugger;
 var ObjectTemplate = require('supertype').default;
 var PersistObjectTemplate = require('../index.js')(ObjectTemplate, null, ObjectTemplate);
 
