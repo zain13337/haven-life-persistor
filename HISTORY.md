@@ -1,5 +1,5 @@
 ## 2.5.1
-* Updated package-lock for defect where it was referencing a git url for supertype
+* Fixed issue where it was referencing an expired git url for supertype
 ## 2.5.0
 * Upgraded to Supertype 3.0.0 
 ## 2.4.1
