@@ -1,3 +1,6 @@
+## 2.8.0
+* Marking API calls as async to fix the issues observed in Zone interception.
+* removed istanbul and included nyc for code coverage. 
 ## 2.7.0
 * Fetch calls can provide projections that can be used when generating select sql.
 ## 2.6.0
