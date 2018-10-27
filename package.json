@@ -51,7 +51,8 @@
         "test:example": "mocha test/example",
         "test:ts": "mocha --compilers ts:ts-node/register test/supertype/persist_banking_pgsql.ts",
         "test:ts:debug": "mocha --inspect-brk --compilers ts:ts-node/register test/supertype/persist_banking_pgsql.ts",
-        "compile": "tsc && cp index.js dist/ && cp -R lib dist/"
+        "compile": "tsc -p ./tsconfig.json && cp index.js dist/ && cp -R lib dist/",
+        "compile:tests": "tsc -p ./test/supertype/tsconfig.test.json"
     },
     "bugs": {
         "url": "http://github.com/haven-life/persistor/issues"

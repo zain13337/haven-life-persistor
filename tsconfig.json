@@ -1,18 +1,9 @@
 {
-  "compilerOptions": {
-    "module": "commonjs",
-    "target": "es5",
-    "outDir": "dist",
-    "lib": ["es2015", "es2017"],
-    "noImplicitAny": false,
-    "sourceMap": true,
-    "typeRoots": [
-      "./node_modules/@types"
-    ],
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
-  },
-  "include": [
-    "./test/supertype/**/*"
-  ]
+    "compilerOptions": {
+        "outDir": "dist",
+        "typeRoots": [
+            "./node_modules/@types"
+        ]
+    },
+    "extends": "./tsconfig.base.json"
 }
