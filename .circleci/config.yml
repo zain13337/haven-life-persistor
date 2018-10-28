@@ -36,8 +36,8 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
       - run:
-          name: compile:all
-          command: npm run compile
+          name: compile
+          command: npm run compile:all
 
       - run:
           name: lint
@@ -48,7 +48,7 @@ jobs:
           name: test
           command: npm test
 
-    #   run typescript tests!
+      run typescript tests!
       - run:
           name: typescript test
-          command: npm run test:ts
+          command: npm run test:compiled:js
