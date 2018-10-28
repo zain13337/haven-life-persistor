@@ -52,7 +52,7 @@
         "test:debug": "mocha test/**/*.js --inspect-brk=0.0.0.0:5858",
         "test:docker": "docker-compose up --build",
         "test:docker:debug": "docker-compose -f docker-compose-debug.yml up --build",
-        "test:compiled:js": "mocha test/supertype/persist_banking_pgsql.js",
+        "test:compiled:js": "_mocha ./test/supertype/persist_banking_pgsql.js",
         "test:config": "mocha test/config",
         "test:example": "mocha test/example",
         "test:ts": "mocha --compilers ts:ts-node/register test/supertype/persist_banking_pgsql.ts",
