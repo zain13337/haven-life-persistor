@@ -51,4 +51,4 @@ jobs:
     #   run typescript tests!
       - run:
           name: typescript test
-          command: npm run test:compiled:js
+          command: npm run test:ts
