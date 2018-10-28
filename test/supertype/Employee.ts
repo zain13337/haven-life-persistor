@@ -1,4 +1,4 @@
-import {Supertype, supertypeClass, property, Persistable} from '../../index';
+import {Supertype, supertypeClass, property, Persistable} from '../../dist/types';
 import {Responsibility} from './Responsibility';
 
 @supertypeClass

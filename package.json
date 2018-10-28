@@ -3,6 +3,8 @@
     "description": "A subclass of supertype that serializes to and reconstitutes from mongodb",
     "homepage": "https://github.com/haven-life/persistor",
     "version": "2.8.0",
+    "main": "dist/lib/index.js",
+    "types": "dist/lib/types.d.ts",
     "dependencies": {
         "bluebird": "x",
         "knex": "0.15.2",
@@ -42,6 +44,10 @@
     "scripts": {
         "lint": "eslint .",
         "coverage": "nyc mocha --exit -- test/* -R spec",
+        "compile": "tsc -p ./tsconfig.json && cp types.d.ts dist/ && cp ./lib/persistable.ts dist/lib/",
+        "compile:tests": "tsc -p ./test/supertype/tsconfig.test.json",
+        "compile:all": "npm run compile && npm run compile:tests",
+        "prepublishOnly": "npm run compile",
         "test": "nyc _mocha -- test/* -R spec",
         "test:debug": "mocha test/**/*.js --inspect-brk=0.0.0.0:5858",
         "test:docker": "docker-compose up --build",
@@ -50,9 +56,7 @@
         "test:config": "mocha test/config",
         "test:example": "mocha test/example",
         "test:ts": "mocha --compilers ts:ts-node/register test/supertype/persist_banking_pgsql.ts",
-        "test:ts:debug": "mocha --inspect-brk --compilers ts:ts-node/register test/supertype/persist_banking_pgsql.ts",
-        "compile": "tsc -p ./tsconfig.json && cp index.js dist/ && cp -R lib dist/",
-        "compile:tests": "tsc -p ./test/supertype/tsconfig.test.json"
+        "test:ts:debug": "mocha --inspect-brk --compilers ts:ts-node/register test/supertype/persist_banking_pgsql.ts"
     },
     "bugs": {
         "url": "http://github.com/haven-life/persistor/issues"

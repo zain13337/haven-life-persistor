@@ -1,4 +1,4 @@
-import {Supertype, supertypeClass, property, Persistable} from '../../index';
+import {Supertype, supertypeClass, property, Persistable} from '../../dist/types';
 import {Role} from './Role';
 import {Address} from './Address';
 import {Transaction, Debit, Credit, Xfer} from './Transaction';
