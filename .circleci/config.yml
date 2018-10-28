@@ -39,15 +39,19 @@ jobs:
       - run:
           name: lint
           command: npm run lint
-          
+
       - run:
-          name: compile
-          command: npm run compile:all
+          name: compile persistor
+          command: npm run compile
 
       # run tests!
       - run:
           name: test
           command: npm test
+
+      - run:
+          name: compile persistor typescript tests
+          command: npm run compile:tests
 
       # run typescript tests!
       - run:
