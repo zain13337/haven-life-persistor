@@ -8,3 +8,4 @@ wait-for-it.sh
 ./lib
 ./index.d.ts
 ./index.ts
+.circleci
