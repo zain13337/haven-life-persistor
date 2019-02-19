@@ -663,7 +663,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
          * @returns {string}
          */
         template.prototype.generateId =  function (): string {
-            var persistObjectTemplate = this.__objectTemplate__ || self;
+            let persistObjectTemplate = this.__objectTemplate__ || self;
             return (this._id = this._id || persistObjectTemplate.createPrimaryKey(this));
         };
 
