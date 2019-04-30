@@ -83,7 +83,7 @@ module.exports = function (PersistObjectTemplate) {
         var collection = obj.__template__.__collection__;
         var schema = obj.__template__.__schema__;
         var id = null;
-        if (pojo._id) {
+        if (pojo._id) { // If object is persistent make sure id is a string and in map
             id = pojo._id;
             obj._id = id.toString();
             // If we have a real value and an array of value store functions, call them
@@ -125,6 +125,7 @@ module.exports = function (PersistObjectTemplate) {
                 // If type of pojo
                 if (!defineProperty.of.__collection__)
                     obj[prop] = value;
+                // If this is in the same entity just copy over
                 else if (!isCrossDocRef) {
                     obj[prop] = [];
                     for (ix = 0; ix < pojo[prop].length; ++ix) {
@@ -165,6 +166,7 @@ module.exports = function (PersistObjectTemplate) {
                      : null;
                      */
                 }
+                // Otherwise this is a database reference and we have to find the collection of kids
                 else {
                     var self = this;
                     (function () {
@@ -276,7 +278,8 @@ module.exports = function (PersistObjectTemplate) {
                      obj[prop] = newObject;
                      */
                 }
-                else {
+                else // Otherwise read from idMap or query for it
+                 {
                     // Determine the id needed
                     if (!schema || !schema.parents || !schema.parents[prop] || !schema.parents[prop].id)
                         throw new Error(obj.__template__.__name__ + '.' + prop + ' is missing a parents schema entry');
@@ -290,7 +293,7 @@ module.exports = function (PersistObjectTemplate) {
                         obj[persistorPropertyName] = copyProps(obj[persistorPropertyName]);
                     }
                     else {
-                        if (doFetch) {
+                        if (doFetch) { // Only fetch ahead if requested
                             obj[prop] = null;
                             if (foreignId) {
                                 query = { _id: new this.ObjectID(foreignId.replace(/:.*/, '')) };
@@ -531,14 +534,14 @@ module.exports = function (PersistObjectTemplate) {
                     newQuery[prop] = elem;
                 else if (typeof (elem) == 'string' || typeof (elem) == 'number' || isObjectID(elem))
                     newQuery[newProp] = elem;
-                else if (elem instanceof Array) {
+                else if (elem instanceof Array) { // Should be for $and and $or
                     newQuery[prop] = [];
                     for (var ix = 0; ix < elem.length; ++ix) {
                         newQuery[prop][ix] = {};
                         queryTraverse(newQuery[prop][ix], elem[ix]);
                     }
                 }
-                else {
+                else { // this would be for sub-doc exact matches which is unlikely but possible
                     newQuery[newProp] = {};
                     queryTraverse(newQuery[newProp], elem);
                 }

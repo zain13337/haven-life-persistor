@@ -625,7 +625,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                     data: { template: this.__template__.__name__, id: this.__id__ }
                 });
                 var dbType = persistObjectTemplate.getDB(persistObjectTemplate.getDBAlias(this.__template__.__collection__)).type;
-                let query =  dbType == persistObjectTemplate.DB_Mongo ?
+                let query = dbType == persistObjectTemplate.DB_Mongo ?
                     persistObjectTemplate.persistSaveMongo(this, undefined, undefined, undefined, txn, logger)
                         .then(function (obj) {
                             if (txn) {
@@ -653,30 +653,33 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
 
         template.prototype.persistTouch = // Legacy -- just use persistorSave
             async function (txn, logger) {
+                const time = getTime();
                 var persistObjectTemplate = this.__objectTemplate__ || self;
                 (logger || persistObjectTemplate.logger).debug({
                     component: 'persistor', module: 'api', activity: 'persistTouch',
                     data: { template: this.__template__.__name__, id: this.__id__ }
                 });
                 var dbType = persistObjectTemplate.getDB(persistObjectTemplate.getDBAlias(this.__template__.__collection__)).type;
-                let query =  dbType == persistObjectTemplate.DB_Mongo ?
+                let query = dbType == persistObjectTemplate.DB_Mongo ?
                     persistObjectTemplate.persistSaveMongo(this, undefined, undefined, undefined, txn, logger)
                     : persistObjectTemplate.persistTouchKnex(this, txn, logger);
 
-                    const name = 'persistTouch';
-                    return query
-                        .then(result => {
-                            getStats(time, template.__name__, name);
-                            return result;
-                        })
-                        .catch(e => {
-                            return getStats(time, template.__name__, name, true);
-                        });
+                const name = 'persistTouch';
+                return query
+                    .then(result => {
+                        getStats(time, template.__name__, name);
+                        return result;
+                    })
+                    .catch(e => {
+                        return getStats(time, template.__name__, name, true);
+                    });
             };
 
         //persistDelete is modified to support both legacy and V2, options this is passed for V2 as the first parameter.
         template.prototype.persistDelete = // Legacy
             async function (txn, logger) {
+                const time = getTime();
+
                 var persistObjectTemplate = this.__objectTemplate__ || self;
                 let query;
                 if (!txn || (txn && txn.knex && txn.knex.transacting)) {
@@ -717,14 +720,28 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
             persistObjectTemplate.setAsDeleted(this, txn, onlyIfChanged)
         };
 
-        // Legacy
+        // Legacy 
         template.prototype.cascadeSave = function (txn, logger) {
+            var time = getTime();
+
             var persistObjectTemplate = this.__objectTemplate__ || self;
-            persistObjectTemplate.setDirty(this, txn || persistObjectTemplate.currentTransaction, true, false, logger);
+            var query = persistObjectTemplate.setDirty(this, txn || persistObjectTemplate.currentTransaction, true, false, logger);
+
+            const name = 'cascadeSave';
+            return query
+                .then(result => {
+                    getStats(time, template.__name__, name);
+                    return result;
+                })
+                .catch(e => {
+                    return getStats(time, template.__name__, name, true);
+                });
         };
 
         template.prototype.isStale = // Legacy
             template.prototype.persistorIsState = function () {
+                var time = getTime();
+                var name = 'isStale';
                 var persistObjectTemplate = this.__objectTemplate__ || self;
                 var dbType = persistObjectTemplate.getDB(persistObjectTemplate.getDBAlias(this.__template__.__collection__)).type;
                 return this.__template__.countFromPersistWithQuery(
@@ -733,12 +750,20 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                         __version__: this.__version__
                     }).then(function (count) {
                         return !count
-                    }.bind(this));
+                    }.bind(this))
+                    .then(result => {
+                        getStats(time, template.__name__, name);
+                        return result;
+                    })
+                    .catch(e => {
+                        return getStats(time, template.__name__, name, true);
+                    });
             };
 
         // Legacy
         template.prototype.fetchProperty = async function (prop, cascade, queryOptions, isTransient, idMap, logger) {
             var persistObjectTemplate = this.__objectTemplate__ || self;
+            var time = getTime();
             (logger || persistObjectTemplate.logger).debug({
                 component: 'persistor', module: 'api', activity: 'fetchProperty',
                 data: { template: this.__template__.__name__, id: this.__id__ }
@@ -754,14 +779,25 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
             cascadeTop[prop] = cascade || true;
 
             var dbType = persistObjectTemplate.getDB(persistObjectTemplate.getDBAlias(this.__template__.__collection__)).type;
-            return dbType == persistObjectTemplate.DB_Mongo ?
+            var promise;
+            promise = dbType == persistObjectTemplate.DB_Mongo ?
                 persistObjectTemplate.getTemplateFromMongoPOJO(this, this.__template__, null, null, idMap, cascadeTop, this, properties, isTransient, logger) :
                 persistObjectTemplate.getTemplateFromKnexPOJO(this, this.__template__, null, idMap, cascadeTop, isTransient, null, this, properties, undefined, undefined, undefined, logger);
+
+            var name = 'fetchProperty';
+            return promise.then(result => {
+                getStats(time, template.__name__, name);
+                return result;
+            })
+                .catch(e => {
+                    return getStats(time, template.__name__, name, true);
+                });
 
         };
 
         template.prototype.fetch = async function (cascade, isTransient, idMap, logger) {
             var persistObjectTemplate = this.__objectTemplate__ || self;
+            var time = getTime();
             (logger || persistObjectTemplate.logger).debug({
                 component: 'persistor', module: 'api', activity: 'fetch',
                 data: { template: this.__template__.__name__, id: this.__id__ }
@@ -776,7 +812,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
             var dbType = persistObjectTemplate.getDB(persistObjectTemplate.getDBAlias(this.__template__.__collection__)).type;
             var previousDirtyTracking = persistObjectTemplate.__changeTracking__;
             persistObjectTemplate.__changeTracking__ = false;
-            return (dbType == persistObjectTemplate.DB_Mongo ?
+            var promise = (dbType == persistObjectTemplate.DB_Mongo ?
                 persistObjectTemplate.getTemplateFromMongoPOJO(this, this.__template__, null, null, idMap, cascade, this, properties, isTransient, logger) :
                 persistObjectTemplate.getTemplateFromKnexPOJO(this, this.__template__, null, idMap, cascade, isTransient, null, this, properties, undefined, undefined, undefined, logger))
                 .then(function (res) {
@@ -786,12 +822,21 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                     persistObjectTemplate.__changeTracking__ = previousDirtyTracking;
                 });
 
+            var name = 'fetch';
+            return promise.then(result => {
+                getStats(time, template.__name__, name);
+                return result;
+            })
+                .catch(e => {
+                    return getStats(time, template.__name__, name, true);
+                });
 
         };
 
         template.prototype.persistorFetchReferences = template.prototype.fetchReferences = async function (options) {
             var persistObjectTemplate = this.__objectTemplate__ || self;
             persistObjectTemplate._validateParams(options, 'fetchSchema', this.__template__);
+            var time = getTime();
 
             options = options || {};
             var logger = options.logger || persistObjectTemplate.logger;
@@ -800,35 +845,57 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 data: { template: this.__template__.__name__, id: this.__id__ }
             });
 
+
             var properties = {}
             var objectProperties = this.__template__.getProperties();
             for (var prop in options.fetch) {
                 properties[prop] = objectProperties[prop];
             }
             var dbType = persistObjectTemplate.getDB(persistObjectTemplate.getDBAlias(this.__template__.__collection__)).type;
-            return (dbType == persistObjectTemplate.DB_Mongo ?
+            var promise = (dbType == persistObjectTemplate.DB_Mongo ?
                 persistObjectTemplate.getTemplateFromMongoPOJO(this, this.__template__, null, null, {},
                     options.fetch, this, properties, options.transient, logger) :
                 persistObjectTemplate.getTemplateFromKnexPOJO(this, this.__template__, null, {},
                     options.fetch, options.transient, null, this,
                     properties, undefined, undefined, undefined, logger));
+
+            var name = 'persistorFetchReferences';
+            return promise.then(result => {
+                getStats(time, template.__name__, name);
+                return result;
+            })
+                .catch(e => {
+                    return getStats(time, template.__name__, name, true);
+                });
         };
 
         template.prototype.persistorRefresh = template.prototype.refresh = async function (logger) {
             var persistObjectTemplate = this.__objectTemplate__ || self;
+            var time = getTime();
             (logger || persistObjectTemplate.logger).debug({
                 component: 'persistor', module: 'api', activity: 'refresh',
                 data: { template: this.__template__.__name__, id: this.__id__ }
             });
             var dbType = persistObjectTemplate.getDB(persistObjectTemplate.getDBAlias(template.__collection__)).type;
             //return this.__template__.getFromPersistWithId(this._id, null, null, null, true, logger)
-            return (dbType == PersistObjectTemplate.DB_Mongo ?
+            var promise = (dbType == PersistObjectTemplate.DB_Mongo ?
                 persistObjectTemplate.getFromPersistWithMongoId(template, this._id, null, null, null, logger) :
                 persistObjectTemplate.getFromPersistWithKnexId(template, this._id, null, null, null, true, logger));
+
+            var name = 'persistorRefresh';
+            promise.then(result => {
+                getStats(time, template.__name__, name);
+                return result;
+            })
+            .catch(e => {
+                return getStats(time, template.__name__, name, true);
+            });
 
         };
 
         template.prototype.persistorSave = template.prototype.persist = async function (options) {
+            var time = getTime();
+
             var persistObjectTemplate = this.__objectTemplate__ || self;
             persistObjectTemplate._validateParams(options, 'persistSchema', this.__template__);
 
@@ -841,12 +908,22 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 data: { template: this.__template__.__name__, id: this.__id__ }
             });
 
+            var promise;
             if (!txn) {
-                return this.persistSave(null, logger);
+                promise = this.persistSave(null, logger);
             }
             else {
-                return Promise.resolve(this.setDirty(txn, false, cascade, logger));
+                promise = Promise.resolve(this.setDirty(txn, false, cascade, logger));
             }
+
+            const name = 'persistorSave';
+            return promise.then(result => {
+                getStats(time, template.__name__, name);
+                return result;
+            })
+                .catch(e => {
+                    return getStats(time, template.__name__, name, true);
+                });
         };
 
         /**
@@ -860,6 +937,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
 
         //persistorDelete will only support new API calls.
         template.prototype.persistorDelete = template.prototype.deleteV2 = async function (options) {
+            var time = getTime();
             var persistObjectTemplate = this.__objectTemplate__ || self;
             persistObjectTemplate._validateParams(options, 'persistSchema', this.__template__);
 
@@ -872,12 +950,22 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 data: { template: this.__template__.__name__, id: this.__id__ }
             });
 
+            var promise;
             if (!txn) {
-                return this.__template__.deleteFromPersistWithId(this._id, null, logger)
+                promise = this.__template__.deleteFromPersistWithId(this._id, null, logger)
             }
             else {
-                return Promise.resolve(persistObjectTemplate.setAsDeleted(this, txn, false, !cascade, logger));
+                promise = Promise.resolve(persistObjectTemplate.setAsDeleted(this, txn, false, !cascade, logger));
             }
+
+            const name = 'persistorDelete';
+            return promise.then(result => {
+                getStats(time, template.__name__, name);
+                return result;
+            })
+                .catch(e => {
+                    return getStats(time, template.__name__, name, true);
+                });
         }
 
         // Add persistors to foreign key references
@@ -988,6 +1076,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
     };
 
     PersistObjectTemplate.saveAll = async function (txn, logger) {
+        var time = getTime();
         var promises = [];
         var somethingSaved = false;
         var dirtyObjects = txn ? txn.dirtyObjects : this.dirtyObjects;
@@ -1014,7 +1103,14 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 } else {
                     return true;
                 }
-            }.bind(this));
+            }.bind(this))
+            .then(result => {
+                getStats(time, 'PersistObjectTemplate', 'saveAll');
+                return result;
+            })
+            .catch(e => {
+                return getStats(time, 'PersistObjectTemplate', 'saveAll', true);
+            });
     }
 
     /**
@@ -1070,6 +1166,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
     };
 
     PersistObjectTemplate.commit = async function commit(options) {
+        var time = getTime();
         PersistObjectTemplate._validateParams(options, 'commitSchema');
 
         options = options || {};
@@ -1079,9 +1176,19 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
         //var prefix = PersistObjectTemplate.dealias(template.__collection__);
         var persistorTransaction = options.transaction || this.__defaultTransaction__;
 
+        var promise;
         if (PersistObjectTemplate.DB_Knex) {
-            return PersistObjectTemplate._commitKnex(persistorTransaction, logger, options.notifyChanges);
+            promise = PersistObjectTemplate._commitKnex(persistorTransaction, logger, options.notifyChanges);
         }
+
+        const name = 'commit';
+        return promise.then(result => {
+            getStats(time, 'PersistObjectTemplate', name);
+            return result;
+        })
+            .catch(e => {
+                return getStats(time, 'PersistObjectTemplate', name, true);
+            });
     };
 
     /**
