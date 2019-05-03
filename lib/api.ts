@@ -253,6 +253,8 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                     getStats(time, template.__name__, name);
                     return result;
                 })
+                // @TODO: need to handle errors with log
+
                 .catch(e => {
                     getStats(time, template.__name__, name, true);
                 });
@@ -316,8 +318,10 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                     getStats(time, template.__name__, name);
                     return result;
                 })
+                // @TODO: need to handle errors with log
                 .catch(e => {
                     getStats(time, template.__name__, name, true);
+                    return logExceptionAndRethrow(e, options.logger || PersistObjectTemplate.logger, template.__name__, query, name);
                 });
         };
 
@@ -646,8 +650,10 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                         getStats(time, template.__name__, name);
                         return result;
                     })
+                    // @TODO: need to handle errors with log
                     .catch(e => {
-                        return getStats(time, template.__name__, name, true);
+                        getStats(time, template.__name__, name, true);
+                        throw e;
                     });
             };
 
@@ -670,8 +676,10 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                         getStats(time, template.__name__, name);
                         return result;
                     })
+                    // @TODO: need to handle errors with log
                     .catch(e => {
-                        return getStats(time, template.__name__, name, true);
+                        getStats(time, template.__name__, name, true);
+                        throw e;
                     });
             };
 
@@ -703,8 +711,10 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                         getStats(time, template.__name__, name);
                         return result;
                     })
+                    // @TODO: need to handle errors with log
                     .catch(e => {
-                        return getStats(time, template.__name__, name, true);
+                        getStats(time, template.__name__, name, true);
+                        throw e;
                     });
 
             };
@@ -720,12 +730,12 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
             persistObjectTemplate.setAsDeleted(this, txn, onlyIfChanged)
         };
 
-        // Legacy 
+        // Legacy
         template.prototype.cascadeSave = function (txn, logger) {
             var time = getTime();
 
             var persistObjectTemplate = this.__objectTemplate__ || self;
-            var query = persistObjectTemplate.setDirty(this, txn || persistObjectTemplate.currentTransaction, true, false, logger);
+            var query = Promise.resolve(persistObjectTemplate.setDirty(this, txn || persistObjectTemplate.currentTransaction, true, false, logger));
 
             const name = 'cascadeSave';
             return query
@@ -733,8 +743,10 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                     getStats(time, template.__name__, name);
                     return result;
                 })
+                // @TODO: need to handle errors with log
                 .catch(e => {
-                    return getStats(time, template.__name__, name, true);
+                    getStats(time, template.__name__, name, true);
+                    throw e;
                 });
         };
 
@@ -755,8 +767,10 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                         getStats(time, template.__name__, name);
                         return result;
                     })
+                    // @TODO: need to handle errors with log
                     .catch(e => {
-                        return getStats(time, template.__name__, name, true);
+                        getStats(time, template.__name__, name, true);
+                        throw e;
                     });
             };
 
@@ -789,8 +803,10 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 getStats(time, template.__name__, name);
                 return result;
             })
+                // @TODO: need to handle errors with log
                 .catch(e => {
-                    return getStats(time, template.__name__, name, true);
+                    getStats(time, template.__name__, name, true);
+                    throw e;
                 });
 
         };
@@ -827,8 +843,10 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 getStats(time, template.__name__, name);
                 return result;
             })
+                // @TODO: need to handle errors with log
                 .catch(e => {
-                    return getStats(time, template.__name__, name, true);
+                    getStats(time, template.__name__, name, true);
+                    throw e;
                 });
 
         };
@@ -860,12 +878,14 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                     properties, undefined, undefined, undefined, logger));
 
             var name = 'persistorFetchReferences';
-            return promise.then(result => {
-                getStats(time, template.__name__, name);
-                return result;
-            })
+            return promise
+                .then(result => {
+                    getStats(time, template.__name__, name);
+                    return result;
+                })// @TODO: need to handle errors with log
                 .catch(e => {
-                    return getStats(time, template.__name__, name, true);
+                    getStats(time, template.__name__, name, true);
+                    throw e;
                 });
         };
 
@@ -883,13 +903,16 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 persistObjectTemplate.getFromPersistWithKnexId(template, this._id, null, null, null, true, logger));
 
             var name = 'persistorRefresh';
-            promise.then(result => {
-                getStats(time, template.__name__, name);
-                return result;
-            })
-            .catch(e => {
-                return getStats(time, template.__name__, name, true);
-            });
+            promise
+                .then(result => {
+                    getStats(time, template.__name__, name);
+                    return result;
+                })
+                // @TODO: need to handle errors with log
+                .catch(e => {
+                    getStats(time, template.__name__, name, true);
+                    throw e;
+                });
 
         };
 
@@ -917,12 +940,16 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
             }
 
             const name = 'persistorSave';
-            return promise.then(result => {
-                getStats(time, template.__name__, name);
-                return result;
-            })
+            return promise
+                .then(result => {
+                    getStats(time, template.__name__, name);
+                    return result;
+                })
+                // @TODO: need to handle errors with log
+
                 .catch(e => {
-                    return getStats(time, template.__name__, name, true);
+                    getStats(time, template.__name__, name, true);
+                    throw e;
                 });
         };
 
@@ -963,8 +990,11 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 getStats(time, template.__name__, name);
                 return result;
             })
+                // @TODO: need to handle errors with log
+
                 .catch(e => {
-                    return getStats(time, template.__name__, name, true);
+                    getStats(time, template.__name__, name, true);
+                    throw e;
                 });
         }
 
@@ -1108,8 +1138,10 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 getStats(time, 'PersistObjectTemplate', 'saveAll');
                 return result;
             })
+            // @TODO: need to handle errors with log
             .catch(e => {
-                return getStats(time, 'PersistObjectTemplate', 'saveAll', true);
+                getStats(time, 'PersistObjectTemplate', 'saveAll', true);
+                throw e;
             });
     }
 
@@ -1186,8 +1218,10 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
             getStats(time, 'PersistObjectTemplate', name);
             return result;
         })
+            // @TODO: need to handle errors with log
             .catch(e => {
-                return getStats(time, 'PersistObjectTemplate', name, true);
+                getStats(time, 'PersistObjectTemplate', name, true);
+                throw e;
             });
     };
 

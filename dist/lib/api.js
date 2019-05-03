@@ -24,8 +24,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
         while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
+            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [0, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
                 case 4: _.label++; return { value: op[1], done: false };
@@ -339,6 +339,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                         })
                             .catch(function (e) {
                             getStats(time, template.__name__, name, true);
+                            return logExceptionAndRethrow(e, options.logger || PersistObjectTemplate.logger, template.__name__, query, name);
                         })];
                 });
             });
@@ -658,7 +659,8 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                     return result;
                 })
                     .catch(function (e) {
-                    return getStats(time, template.__name__, name, true);
+                    getStats(time, template.__name__, name, true);
+                    throw e;
                 });
             };
         template.prototype.persistTouch = // Legacy -- just use persistorSave
@@ -683,7 +685,8 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                                 return result;
                             })
                                 .catch(function (e) {
-                                return getStats(time, template.__name__, name, true);
+                                getStats(time, template.__name__, name, true);
+                                throw e;
                             })];
                     });
                 });
@@ -717,7 +720,8 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                                 return result;
                             })
                                 .catch(function (e) {
-                                return getStats(time, template.__name__, name, true);
+                                getStats(time, template.__name__, name, true);
+                                throw e;
                             })];
                     });
                 });
@@ -731,11 +735,11 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
             var persistObjectTemplate = this.__objectTemplate__ || self;
             persistObjectTemplate.setAsDeleted(this, txn, onlyIfChanged);
         };
-        // Legacy 
+        // Legacy
         template.prototype.cascadeSave = function (txn, logger) {
             var time = getTime();
             var persistObjectTemplate = this.__objectTemplate__ || self;
-            var query = persistObjectTemplate.setDirty(this, txn || persistObjectTemplate.currentTransaction, true, false, logger);
+            var query = Promise.resolve(persistObjectTemplate.setDirty(this, txn || persistObjectTemplate.currentTransaction, true, false, logger));
             var name = 'cascadeSave';
             return query
                 .then(function (result) {
@@ -743,7 +747,8 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 return result;
             })
                 .catch(function (e) {
-                return getStats(time, template.__name__, name, true);
+                getStats(time, template.__name__, name, true);
+                throw e;
             });
         };
         template.prototype.isStale = // Legacy
@@ -763,7 +768,8 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                     return result;
                 })
                     .catch(function (e) {
-                    return getStats(time, template.__name__, name, true);
+                    getStats(time, template.__name__, name, true);
+                    throw e;
                 });
             };
         // Legacy
@@ -796,7 +802,8 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                             return result;
                         })
                             .catch(function (e) {
-                            return getStats(time, template.__name__, name, true);
+                            getStats(time, template.__name__, name, true);
+                            throw e;
                         })];
                 });
             });
@@ -835,7 +842,8 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                             return result;
                         })
                             .catch(function (e) {
-                            return getStats(time, template.__name__, name, true);
+                            getStats(time, template.__name__, name, true);
+                            throw e;
                         })];
                 });
             });
@@ -863,12 +871,14 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                         persistObjectTemplate.getTemplateFromMongoPOJO(this, this.__template__, null, null, {}, options.fetch, this, properties, options.transient, logger) :
                         persistObjectTemplate.getTemplateFromKnexPOJO(this, this.__template__, null, {}, options.fetch, options.transient, null, this, properties, undefined, undefined, undefined, logger));
                     name = 'persistorFetchReferences';
-                    return [2 /*return*/, promise.then(function (result) {
+                    return [2 /*return*/, promise
+                            .then(function (result) {
                             getStats(time, template.__name__, name);
                             return result;
-                        })
+                        }) // @TODO: need to handle errors with log
                             .catch(function (e) {
-                            return getStats(time, template.__name__, name, true);
+                            getStats(time, template.__name__, name, true);
+                            throw e;
                         })];
                 });
             });
@@ -888,12 +898,14 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                         persistObjectTemplate.getFromPersistWithMongoId(template, this._id, null, null, null, logger) :
                         persistObjectTemplate.getFromPersistWithKnexId(template, this._id, null, null, null, true, logger));
                     name = 'persistorRefresh';
-                    promise.then(function (result) {
+                    promise
+                        .then(function (result) {
                         getStats(time, template.__name__, name);
                         return result;
                     })
                         .catch(function (e) {
-                        return getStats(time, template.__name__, name, true);
+                        getStats(time, template.__name__, name, true);
+                        throw e;
                     });
                     return [2 /*return*/];
                 });
@@ -921,12 +933,14 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                         promise = Promise.resolve(this.setDirty(txn, false, cascade, logger));
                     }
                     name = 'persistorSave';
-                    return [2 /*return*/, promise.then(function (result) {
+                    return [2 /*return*/, promise
+                            .then(function (result) {
                             getStats(time, template.__name__, name);
                             return result;
                         })
                             .catch(function (e) {
-                            return getStats(time, template.__name__, name, true);
+                            getStats(time, template.__name__, name, true);
+                            throw e;
                         })];
                 });
             });
@@ -967,7 +981,8 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                             return result;
                         })
                             .catch(function (e) {
-                            return getStats(time, template.__name__, name, true);
+                            getStats(time, template.__name__, name, true);
+                            throw e;
                         })];
                 });
             });
@@ -1100,7 +1115,8 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                         return result;
                     })
                         .catch(function (e) {
-                        return getStats(time, 'PersistObjectTemplate', 'saveAll', true);
+                        getStats(time, 'PersistObjectTemplate', 'saveAll', true);
+                        throw e;
                     })];
             });
         });
@@ -1176,7 +1192,8 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                         return result;
                     })
                         .catch(function (e) {
-                        return getStats(time, 'PersistObjectTemplate', name, true);
+                        getStats(time, 'PersistObjectTemplate', name, true);
+                        throw e;
                     })];
             });
         });

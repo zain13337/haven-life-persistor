@@ -127,7 +127,7 @@ module.exports = function (PersistObjectTemplate) {
         var of = defineProperty.of;
         var refType = of || type;
         var refTypeSchema = getSchema(refType);
-        if (!schema || !refTypeSchema) // No schema no persistor
+        if (!schema || !refTypeSchema)
             return false;
         // With knex everything is cross doc
         if (template.isKnex())

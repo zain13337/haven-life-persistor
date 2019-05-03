@@ -1114,6 +1114,7 @@ module.exports = function (PersistObjectTemplate) {
                 }.bind(this));
             }
             function rollback(err) {
+                // console.log('rollback NOT detected');
                 var deadlock = err.toString().match(/deadlock detected$/i);
                 persistorTransaction.innerError = err;
                 innerError = deadlock ? new Error('Update Conflict') : err;
@@ -1156,7 +1157,6 @@ module.exports = function (PersistObjectTemplate) {
                         JSON.stringify(obj[oldKey]) !== JSON.stringify(obj[prop])))) {
                         addChanges(prop, obj[oldKey], obj[prop], prop);
                     }
-                    //For one to one relations, we need to check the ids associated to the parent record.
                     else if (props[prop].type.isObjectTemplate && obj['_ct_org_' + prop] !== obj[prop + 'Persistor'].id) {
                         addChanges(prop, obj[oldKey], obj[prop + 'Persistor'].id, getColumnName(prop, obj));
                     }

@@ -37,7 +37,7 @@ module.exports = function (PersistObjectTemplate) {
         var collection = obj.__template__.__collection__;
         var resolvePromises = false; // whether we resolve all promises
         var savePOJO = false; // whether we save this entity or just return pojo
-        if (!promises) { // accumulate promises for nested saves
+        if (!promises) {
             promises = [];
             resolvePromises = true;
         }
@@ -99,7 +99,6 @@ module.exports = function (PersistObjectTemplate) {
                 // If type of pojo
                 if (!defineProperty.of.__collection__)
                     pojo[prop] = value;
-                // Is this a subdocument
                 else if (!isCrossDocRef || !defineProperty.of.__schema__.documentOf) {
                     pojo[prop] = [];
                     if (value) {
@@ -122,7 +121,7 @@ module.exports = function (PersistObjectTemplate) {
                                         activity: 'processing' }, 'updated it\'s foreign key');
                                 }
                                 // If we were waiting to resolve where this should go let's just put it here
-                                if ((typeof (value[ix]._id) == 'function')) { // This will resolve the id and it won't be a function anymore
+                                if ((typeof (value[ix]._id) == 'function')) {
                                     (logger || this.logger).debug({ component: 'persistor', module: 'update.persistSaveMongo',
                                         activity: 'processing' }, prop + ' waiting for placement, ebmed as subdocument');
                                     values.push(this.persistSaveMongo(value[ix], promises, masterId, idMap, txn, logger));
@@ -130,9 +129,8 @@ module.exports = function (PersistObjectTemplate) {
                                 // If it was this placed another document or another place in our document
                                 // we don't add it as a sub-document
                                 if (value[ix]._id && (idMap[value[ix]._id.toString()] || // Already processed
-                                    value[ix]._id.replace(/:.*/, '') != masterId)) // or in another doc
-                                 {
-                                    if (value[ix].__dirty__) // If dirty save it
+                                    value[ix]._id.replace(/:.*/, '') != masterId)) {
+                                    if (value[ix].__dirty__)
                                         promises.push(this.persistSaveMongo(value[ix], promises, null, idMap, txn, logger));
                                     continue; // Skip saving it as a sub-doc
                                 }
@@ -142,9 +140,9 @@ module.exports = function (PersistObjectTemplate) {
                                 values.push(this.persistSaveMongo(value[ix], promises, masterId, idMap, txn, logger));
                             }
                             else {
-                                if (value[ix]._id && idMap[value[ix]._id.toString()]) // Previously referenced objects just get the id
+                                if (value[ix]._id && idMap[value[ix]._id.toString()])
                                     values.push(value[ix]._id.toString());
-                                else // Otherwise recursively obtain pojo
+                                else
                                     values.push(this.persistSaveMongo(value[ix], promises, masterId, idMap, txn, logger));
                             }
                         }
@@ -170,20 +168,16 @@ module.exports = function (PersistObjectTemplate) {
                         }
                 }
             }
-            // One-to-One or Many-to-One
             else if (defineProperty.type && defineProperty.type.isObjectTemplate) {
                 foreignKey = (schema.parents && schema.parents[prop]) ? schema.parents[prop].id : prop;
-                if (!isCrossDocRef || !defineProperty.type.__schema__.documentOf) // Subdocument processing:
-                 {
+                if (!isCrossDocRef || !defineProperty.type.__schema__.documentOf) {
                     // If already stored in this document or stored in some other document make reference an id
                     if (value == null)
                         pojo[foreignKey] = null;
                     else if (value._id && (idMap[value._id.toString()] || value._id.replace(/:.*/, '') != masterId))
                         pojo[foreignKey] = value._id.toString();
-                    // otherwise as long as in same collection just continue saving the sub-document
                     else if (defineProperty.type.__collection__ == collection)
                         pojo[foreignKey] = this.persistSaveMongo(value, promises, masterId, idMap, txn, logger);
-                    // If an a different collection we have to get the id generated
                     else {
                         // This should cause an id to be generated eventually
                         promises.push(this.persistSaveMongo(value, promises, null, idMap, txn, logger));
@@ -203,7 +197,7 @@ module.exports = function (PersistObjectTemplate) {
                         })();
                     }
                 }
-                else { // Otherwise this is a database reference and we must make sure that we
+                else {
                     // have a foreign key that points to the entity
                     if (!schema || !schema.parents || !schema.parents[prop] || !schema.parents[prop].id)
                         throw new Error(obj.__template__.__name__ + '.' + prop + ' is missing a parents schema entry');
