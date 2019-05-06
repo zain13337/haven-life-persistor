@@ -24,15 +24,14 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
         return process.hrtime();
     }
 
-    function getStats(startTime, templateName: string, queryType: string, error?: boolean) {
+    function getStats(startTime, templateName: string, queryType: string, error = false) {
         return statsdUtils.computeTimingAndSend(
             startTime,
             SupertypeSession.statsDClient,
-            'amorphic.session.get_session_cache.response_time',
+            `persistor.${queryType}`,
             {
-                _persistorError: error,
+                _error: error,
                 _templateName: templateName,
-                _queryType: queryType
             });
     }
 
