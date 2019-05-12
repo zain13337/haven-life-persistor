@@ -13,7 +13,7 @@ var knex;
 
 var schema = {};
 var schemaTable = 'index_schema_history';
-var Employee, Department, Role, roleId, EmployeeRef, empId;
+var Employee, Department, Role, roleId, EmployeeRef;
 var PersistObjectTemplate, ObjectTemplate;
 describe('persistor transaction checks', function () {
     before('drop schema table once per test suit', function() {
@@ -53,8 +53,6 @@ describe('persistor transaction checks', function () {
         schema.Employee.table = 'tx_employee';
         schema.EmployeeRef.table = 'tx_employee_ref';
         schema.Department.table = 'tx_department';
-        
-
         schema.Employee.parents = {
             department: {id: 'department_id'},
             referral: {id: 'referral_id'}
@@ -89,7 +87,6 @@ describe('persistor transaction checks', function () {
         Role = PersistObjectTemplate.create('Role', {
             name: {type:String}
         });
-       
         Employee.mixin({
             department: {type: Department},
             roles: {type: Array, of: Role, value: []},
@@ -118,7 +115,6 @@ describe('persistor transaction checks', function () {
         emp.roles = [role1, role2];
         var referral = new EmployeeRef();
         referral.name = 'referral';
-     
         var second = new Employee();
         second.name = 'second'
         referral.friend = second;
@@ -154,7 +150,6 @@ describe('persistor transaction checks', function () {
                 emp.setDirty(tx);
                 return PersistObjectTemplate.end(tx).then(function() {
                     roleId = emp.roles[0]._id;
-                    empId = emp._id;
                 });
             }
         }
