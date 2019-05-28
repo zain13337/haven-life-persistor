@@ -1015,7 +1015,7 @@ describe('Banking from pgsql Example', function () {
             output += str.replace(/[\r\n ]/g, '');
         };
 
-        sam.amorphic.logger.startContext({name: 'supertype'});
+        sam.amorphic.logger.startContext({name: '@havenlife/supertype'});
         sam.amorphic.logger.warn({foo: 'bar1'}, 'Yippie');
         var context = sam.amorphic.logger.setContextProps({permFoo: 'permBar1'});
         sam.amorphic.logger.warn({foo: 'bar2'});
