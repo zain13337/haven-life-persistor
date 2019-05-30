@@ -1,4 +1,4 @@
-## 2.12.0
+## 3.0.0
 * Moving the target npm repo to @havenlife/persistor
 ## 2.11.1
 * fix to address the issues related to properties marked as non-persist in change tracking.

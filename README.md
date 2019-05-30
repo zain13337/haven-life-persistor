@@ -1,5 +1,5 @@
 [![CircleCI](https://circleci.com/gh/haven-life/persistor.svg?style=shield)](https://circleci.com/gh/haven-life/persistor)
-[![npm version](https://badge.fury.io/js/persistor.svg)](https://badge.fury.io/js/persistor)
+[![npm version](https://badge.fury.io/js/%40havenlife%2Fpersistor.svg)](https://badge.fury.io/js/%40havenlife%2Fpersistor)
 
 # Persistor
 
