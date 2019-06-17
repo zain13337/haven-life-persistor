@@ -15,10 +15,10 @@
         "underscore": "1.x"
     },
     "peerDependencies": {
-        "@havenlife/supertype": "haven-life/supertype#test/feature/stats-d-supertype"
+        "@havenlife/supertype": "3.x"
     },
     "devDependencies": {
-        "@havenlife/supertype": "haven-life/supertype#test/feature/stats-d-supertype",
+        "@havenlife/supertype": "3.x",
         "chai": "3.x",
         "chai-as-promised": "^5.1.0",
         "nyc": "13.0.0",
