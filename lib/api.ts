@@ -827,16 +827,9 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
             var dbType = persistObjectTemplate.getDB(persistObjectTemplate.getDBAlias(this.__template__.__collection__)).type;
             var previousDirtyTracking = persistObjectTemplate.__changeTracking__;
             persistObjectTemplate.__changeTracking__ = false;
-            var promise = (dbType == persistObjectTemplate.DB_Mongo ?
+            var promise = (dbType == persistObjectTemplate.DB_Mongo) ?
                 persistObjectTemplate.getTemplateFromMongoPOJO(this, this.__template__, null, null, idMap, cascade, this, properties, isTransient, logger) :
-                persistObjectTemplate.getTemplateFromKnexPOJO(this, this.__template__, null, idMap, cascade, isTransient, null, this, properties, undefined, undefined, undefined, logger))
-                .then(function (res) {
-                    return res;
-                })
-                .finally(function () {
-                    persistObjectTemplate.__changeTracking__ = previousDirtyTracking;
-                });
-
+                persistObjectTemplate.getTemplateFromKnexPOJO(this, this.__template__, null, idMap, cascade, isTransient, null, this, properties, undefined, undefined, undefined, logger);
             var name = 'fetch';
             return promise.then(result => {
                 getStats(time, template.__name__, name);
@@ -847,7 +840,6 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                     getStats(time, template.__name__, name, true);
                     throw e;
                 });
-
         };
 
         template.prototype.persistorFetchReferences = template.prototype.fetchReferences = async function (options) {

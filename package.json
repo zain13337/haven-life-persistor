@@ -1,8 +1,8 @@
 {
-    "name": "persistor",
+    "name": "@havenlife/persistor",
     "description": "A subclass of supertype that serializes to and reconstitutes from mongodb",
     "homepage": "https://github.com/haven-life/persistor",
-    "version": "2.10.0",
+    "version": "3.0.0",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "dependencies": {
@@ -11,11 +11,14 @@
         "mongodb-bluebird": "x",
         "pg": "7.4.1",
         "q": "1.x",
-        "supertype": "haven-life/supertype#test/feature/stats-d-supertype",
         "tv4": "^1.2.7",
         "underscore": "1.x"
     },
+    "peerDependencies": {
+        "@havenlife/supertype": "haven-life/supertype#test/feature/stats-d-supertype"
+    },
     "devDependencies": {
+        "@havenlife/supertype": "haven-life/supertype#test/feature/stats-d-supertype",
         "chai": "3.x",
         "chai-as-promised": "^5.1.0",
         "nyc": "13.0.0",

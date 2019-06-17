@@ -1,3 +1,13 @@
+## 3.0.0
+* Moving the target npm repo to @havenlife/persistor
+## 2.11.1
+* fix to address the issues related to properties marked as non-persist in change tracking.
+## 2.11.0
+* fetch spec can have recursive spec by providing a string starting with "recursive:".
+## 2.10.0
+* global chagetracking flags should not be disabled in fetch method.
+## 2.9.1
+* Fix to avoid change tracking processing for non-Amorphic objects.
 ## 2.9.0
 * generateId function has been added so that the consumers can get the db id before saving the object.
 ## 2.8.3
