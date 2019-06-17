@@ -12,9 +12,9 @@
 
 
 module.exports = function (PersistObjectTemplate, baseClassForPersist) {
-
-    let statsdUtils = require('@havenlife/supertype').StatsDHelper;
-    let SupertypeSession = require('@havenlife/supertype').SupertypeSession;
+    let supertypeRequire = require('@havenlife/supertype');
+    let statsdUtils = supertypeRequire.StatsdHelper;
+    let SupertypeSession = supertypeRequire.SupertypeSession;
 
     var Promise = require('bluebird');
     var _ = require('underscore');
