@@ -28,8 +28,8 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
             startTime,
             `persistor.${queryType}`,
             {
-                _error: error,
-                _templateName: templateName,
+                error: error,
+                templateName: templateName,
             });
     }
 
