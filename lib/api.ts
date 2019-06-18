@@ -13,8 +13,7 @@
 
 module.exports = function (PersistObjectTemplate, baseClassForPersist) {
     let supertypeRequire = require('@havenlife/supertype');
-    let statsdUtils = supertypeRequire.StatsdHelper;
-    let SupertypeSession = supertypeRequire.SupertypeSession;
+    let statsDHelper = supertypeRequire.StatsdHelper;
 
     var Promise = require('bluebird');
     var _ = require('underscore');
@@ -25,9 +24,8 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
     }
 
     function getStats(startTime, templateName: string, queryType: string, error = false) {
-        return statsdUtils.computeTimingAndSend(
+        return statsDHelper.computeTimingAndSend(
             startTime,
-            SupertypeSession.statsDClient,
             `persistor.${queryType}`,
             {
                 _error: error,
