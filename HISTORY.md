@@ -1,3 +1,5 @@
+## 3.1.0
+* Enabling stats through persistor
 ## 3.0.0
 * Moving the target npm repo to @havenlife/persistor
 ## 2.11.1
