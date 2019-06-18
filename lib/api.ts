@@ -881,29 +881,16 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
         };
 
         template.prototype.persistorRefresh = template.prototype.refresh = async function (logger) {
+
+            // @TODO: need to add stats collection to this method for success and failure
             var persistObjectTemplate = this.__objectTemplate__ || self;
-            var time = getTime();
-            (logger || persistObjectTemplate.logger).debug({
-                component: 'persistor', module: 'api', activity: 'refresh',
-                data: { template: this.__template__.__name__, id: this.__id__ }
-            });
+            (logger || persistObjectTemplate.logger).debug({component: 'persistor', module: 'api', activity: 'refresh',
+                data: {template: this.__template__.__name__, id: this.__id__}});
             var dbType = persistObjectTemplate.getDB(persistObjectTemplate.getDBAlias(template.__collection__)).type;
             //return this.__template__.getFromPersistWithId(this._id, null, null, null, true, logger)
-            var promise = (dbType == PersistObjectTemplate.DB_Mongo ?
+            return (dbType == PersistObjectTemplate.DB_Mongo ?
                 persistObjectTemplate.getFromPersistWithMongoId(template, this._id, null, null, null, logger) :
                 persistObjectTemplate.getFromPersistWithKnexId(template, this._id, null, null, null, true, logger));
-
-            var name = 'persistorRefresh';
-            promise
-                .then(result => {
-                    getStats(time, template.__name__, name);
-                    return result;
-                })
-                // @TODO: need to handle errors with log
-                .catch(e => {
-                    getStats(time, template.__name__, name, true);
-                    throw e;
-                });
 
         };
 
