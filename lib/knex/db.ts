@@ -756,15 +756,15 @@ module.exports = function (PersistObjectTemplate) {
                     else
                         table[type](columns, name);
 
-                }).bind(this));
+                }));
             }
 
 
             return knex.transaction(function (trx) {
                 return trx.schema.table(tableName, function (table) {
-                    _.map(Object.getOwnPropertyNames(dbChanges), function (key) {
-                        return syncIndexesForHierarchy.call(this, key, dbChanges, table);
-                    }.bind(this));
+                    syncIndexesForHierarchy('delete', dbChanges, table);
+                    syncIndexesForHierarchy('add', dbChanges, table);
+                    syncIndexesForHierarchy('change', dbChanges, table);
                 })
             })
         };

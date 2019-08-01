@@ -1,3 +1,6 @@
+## 3.1.1
+* drop indexes should be called first before add/change to support index type changes.
+
 ## 3.1.0
 * Enabling stats through persistor
 * Persistor will now pull all minor supertype changes instead of only bug fixes
