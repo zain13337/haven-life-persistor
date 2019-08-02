@@ -1,5 +1,6 @@
 ## 3.1.1
 * drop indexes should be called first before add/change to support index type changes.
+* sorting fields are chained as multiple orderBy calls to support the breaking changes introduced by knex@0.16.1 
 
 ## 3.1.0
 * Enabling stats through persistor
