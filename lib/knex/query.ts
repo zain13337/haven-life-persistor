@@ -352,7 +352,8 @@ module.exports = function (PersistObjectTemplate) {
                     var candidateDefineProp = props[candidateProp];
                     var filter = schema.children[candidateProp] ? schema.children[candidateProp].filter : null;
                     if (filter && filter.property == foreignFilterKey &&
-                        candidateDefineProp.of.__table__ == thisDefineProperty.of.__table__ &&  excluded++) {
+                        candidateDefineProp.of.__table__ == thisDefineProperty.of.__table__ &&  excluded) {
+                        excluded++;
                         filters = filters || {};
                         filters[candidateProp] = {
                             foreignFilterKey: filter.property,
