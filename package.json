@@ -12,7 +12,8 @@
         "pg": "7.4.1",
         "q": "1.x",
         "tv4": "^1.2.7",
-        "underscore": "1.x"
+        "underscore": "1.x",
+        "aws-sdk": "2.x"
     },
     "peerDependencies": {
         "@havenlife/supertype": "3.x"
