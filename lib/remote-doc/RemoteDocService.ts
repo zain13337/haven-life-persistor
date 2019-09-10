@@ -1,16 +1,18 @@
 import { RemoteDocClient, RemoteDocConnection } from './remote-doc-types/index';
+import { LocalStorageDocClient } from './remote-doc-clients/LocalStorageDocClient';
+import { S3RemoteDocClient } from './remote-doc-clients/S3RemoteDocClient';
 
 export class RemoteDocService {
     private remoteDocConnection: RemoteDocConnection;
     private remoteDocClient: RemoteDocClient;
 
-    static new(remoteDocClient: RemoteDocClient) {
+    static new(remoteDocClient: string) {
         return new RemoteDocService().init(remoteDocClient);
     }
 
-    init(remoteDocClient: RemoteDocClient): this {
-        this.remoteDocClient = remoteDocClient;
-        this.remoteDocConnection = remoteDocClient.getConnection();
+    init(remoteDocClient: string): this {
+        this.remoteDocClient = RemoteDocService.remoteDocClientFactory(remoteDocClient);
+        this.remoteDocConnection = this.remoteDocClient.getConnection();
         return this;
     }
 
@@ -24,5 +26,16 @@ export class RemoteDocService {
 
     deleteDocument(key: string) {
         return this.remoteDocClient.deleteDocument(key);
+    }
+
+    private static remoteDocClientFactory (remoteDocClient: string): RemoteDocClient {
+        switch (remoteDocClient) {
+            case 'S3':
+                return new S3RemoteDocClient();
+            case 'local':
+                return new LocalStorageDocClient();
+            default:
+                throw new Error('no remote client specified.');
+        }
     }
 }
