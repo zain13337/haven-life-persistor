@@ -6,7 +6,6 @@ export class S3RemoteDocClient implements RemoteDocClient {
     private S3Instance: S3;
 
     private async getConnection() {
-        let newS3Instance = this.S3Instance;
         /*
             Request for reconnect if credentials are not set
                          OR
@@ -24,22 +23,13 @@ export class S3RemoteDocClient implements RemoteDocClient {
             // const cfg = amorphicStatic.config;
             const endPoint = 'https://s3.amazonaws.com/' + 'test-bucket-persistor';
 
-            newS3Instance = new S3({
+            this.S3Instance = new S3({
                 endpoint: endPoint,
                 region: 'us-east-1',
                 s3BucketEndpoint: true
             });
 
-            newS3Instance.config.getCredentials((err: AWS.AWSError) => {
-                if (err) {
-                    console.log("we had an error! we needed a new S3 instance, but didn't get it", err.message);
-                    throw new Error(err.message);
-                } else {
-                    console.log("we had NO errors, so we made a new S3 instance", newS3Instance);
-                    this.S3Instance = newS3Instance;
-                    return newS3Instance;
-                }
-            });
+            return this.S3Instance;
         } else {
             console.log("we DO NOT need to make a new s3 instance");
             return this.S3Instance;
@@ -55,14 +45,14 @@ export class S3RemoteDocClient implements RemoteDocClient {
 
         const bucketParams: S3.PutObjectRequest = {
             Bucket: bucketName,
-            Key: 'test-key',
+            Key: 'test-key2',
             Body: 'testingonetwothreefour',
             ContentEncoding: 'base64'
         };
 
         const s3Conn = await this.getConnection();
 
-        s3Conn.putObject(bucketParams, async (err: AWSError, data: S3.PutObjectRequest) => {
+        (<AWS.S3>s3Conn).putObject(bucketParams, async (err: AWSError, data: S3.PutObjectRequest) => {
             if (err) {
                 throw new Error(err.message);
             }
