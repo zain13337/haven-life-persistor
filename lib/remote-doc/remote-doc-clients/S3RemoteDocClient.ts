@@ -1,27 +1,21 @@
 import { RemoteDocClient } from '../remote-doc-types/index';
-import {S3, config, AWSError} from 'aws-sdk';
+import { S3, config, AWSError } from 'aws-sdk';
 
 export class S3RemoteDocClient implements RemoteDocClient {
 
     private S3Instance: S3;
 
     private async getConnection() {
-        /*
-            Request for reconnect if credentials are not set
-                         OR
-            Request for reconnect if connection is expired
-        */
-
-        // @TODO NICK figure out how to put this into config
-        config.update({
-            accessKeyId: "",
-            secretAccessKey: ""
-        });
 
         if (!this.hasCredentials() || (this.hasCredentials() && !this.isCredentialsValid())) {
-            console.log("we DO need to make a new s3 instance");
-            // const cfg = amorphicStatic.config;
+            // @TODO remove hard coding
             const endPoint = 'https://s3.amazonaws.com/' + 'test-bucket-persistor';
+
+            // @TODO make this config driven
+            config.update({
+                accessKeyId: "",
+                secretAccessKey: ""
+            });
 
             this.S3Instance = new S3({
                 endpoint: endPoint,
@@ -31,17 +25,13 @@ export class S3RemoteDocClient implements RemoteDocClient {
 
             return this.S3Instance;
         } else {
-            console.log("we DO NOT need to make a new s3 instance");
             return this.S3Instance;
         }
     };
 
     // TODO nick implement these
-    public async uploadDocument(base64, key) {
+    public async uploadDocument(base64, key): Promise<S3.PutObjectOutput> {
         const bucketName = 'test-bucket-persistor';
-        // const lengthOfbase64 = base64.length;
-        // const lengthOfPadding = (lengthOfbase64 > 1) ? ((base64[lengthOfbase64 - 1] === '=') ? ((base64[lengthOfbase64 - 2] === '=') ? 2 : 1) : 0) : 0;
-        // const contentLength = ((3 * (lengthOfbase64 / 4)) - (lengthOfPadding));  // (3 * (LengthInCharacters / 4)) - (numberOfPaddingCharacters) = length in bytes ; paddingCharacters are usually "=="
 
         const bucketParams: S3.PutObjectRequest = {
             Bucket: bucketName,
@@ -52,12 +42,16 @@ export class S3RemoteDocClient implements RemoteDocClient {
 
         const s3Conn = await this.getConnection();
 
-        (<AWS.S3>s3Conn).putObject(bucketParams, async (err: AWSError, data: S3.PutObjectRequest) => {
-            if (err) {
-                throw new Error(err.message);
-            }
+        return new Promise((resolve, reject) => {
+            (<AWS.S3>s3Conn).putObject(bucketParams, async (err: AWSError, data: S3.PutObjectOutput) => {
+                if (err) {
+                    reject(err.message);
+                }
 
-            return data;
+                console.log('data', data);
+
+                return resolve(data);
+            });
         });
     };
 

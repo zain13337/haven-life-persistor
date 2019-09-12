@@ -1,4 +1,4 @@
-import { RemoteDocClient, RemoteDocConnection } from './remote-doc-types/index';
+import { RemoteDocClient } from './remote-doc-types/index';
 import { LocalStorageDocClient } from './remote-doc-clients/LocalStorageDocClient';
 import { S3RemoteDocClient } from './remote-doc-clients/S3RemoteDocClient';
 
@@ -9,21 +9,20 @@ export class RemoteDocService {
         return new RemoteDocService().init(remoteDocClient);
     }
 
-    init(remoteDocClient: string): this {
+    private init(remoteDocClient: string): this {
         this.remoteDocClient = RemoteDocService.remoteDocClientFactory(remoteDocClient);
-        console.log('remote client', this.remoteDocClient);
         return this;
     }
 
-    uploadDocument(base64: string, key: string) {
+    public async uploadDocument(base64: string, key: string) {
         return this.remoteDocClient.uploadDocument(base64, key);
     }
 
-    downloadDocument(key: string) {
+    public async downloadDocument(key: string) {
         return this.remoteDocClient.downloadDocument(key);
     }
 
-    deleteDocument(key: string) {
+    public async deleteDocument(key: string) {
         return this.remoteDocClient.deleteDocument(key);
     }
 

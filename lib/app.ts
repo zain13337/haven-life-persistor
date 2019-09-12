@@ -2,4 +2,9 @@ import { RemoteDocService } from './remote-doc/RemoteDocService';
 
 let blah = RemoteDocService.new('S3');
 
-blah.uploadDocument('testing!', 'test-key');
+let uploadDoc = async () => {
+    let result = await blah.uploadDocument('testing!', 'test-key');
+    console.log("!!!", result);
+};
+
+uploadDoc();
