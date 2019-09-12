@@ -15,8 +15,8 @@ export class S3RemoteDocClient implements RemoteDocClient {
 
         // @TODO NICK figure out how to put this into config
         config.update({
-            accessKeyId: "AKIASMGUUZMG7A4DN6GX",
-            secretAccessKey: "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"
+            accessKeyId: "",
+            secretAccessKey: ""
         });
 
         if (!this.hasCredentials() || (this.hasCredentials() && !this.isCredentialsValid())) {
