@@ -3,7 +3,6 @@ import { LocalStorageDocClient } from './remote-doc-clients/LocalStorageDocClien
 import { S3RemoteDocClient } from './remote-doc-clients/S3RemoteDocClient';
 
 export class RemoteDocService {
-    private remoteDocConnection: RemoteDocConnection;
     private remoteDocClient: RemoteDocClient;
 
     static new(remoteDocClient: string) {
@@ -12,12 +11,12 @@ export class RemoteDocService {
 
     init(remoteDocClient: string): this {
         this.remoteDocClient = RemoteDocService.remoteDocClientFactory(remoteDocClient);
-        this.remoteDocConnection = this.remoteDocClient.getConnection();
+        console.log('remote client', this.remoteDocClient);
         return this;
     }
 
-    uploadDocument(base64: string) {
-        return this.remoteDocClient.uploadDocument(base64);
+    uploadDocument(base64: string, key: string) {
+        return this.remoteDocClient.uploadDocument(base64, key);
     }
 
     downloadDocument(key: string) {

@@ -75,7 +75,7 @@ module.exports = function (PersistObjectTemplate) {
                     });
             }
         }
-        options = options || {}
+        options = options || {};
         if (skip)
             options.offset = skip;
         if (limit)
