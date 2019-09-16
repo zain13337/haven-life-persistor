@@ -44,6 +44,7 @@ export class S3RemoteDocClient implements RemoteDocClient {
      * @returns {Promise<S3.PutObjectOutput>} - standard aws result object following an s3 upload
      */
     public async uploadDocument(s3ObjectToBeUploaded: string, key: string, contentEncoding: string): Promise<S3.PutObjectOutput> {
+        // @TODO figure out bucket details e.g. naming, if dynamic, etc. hard code for now
         const bucketName = 'test-bucket-persistor';
 
         const bucketParams: S3.PutObjectRequest = {
@@ -66,7 +67,34 @@ export class S3RemoteDocClient implements RemoteDocClient {
         });
     };
 
-    downloadDocument() {};
+    /**
+     * download s3 object by key.
+     *
+     * @param {string} key
+     * @returns {Promise<S3.GetObjectOutput>}
+     */
+    public async downloadDocument(key: string): Promise<S3.GetObjectOutput> {
+        // @TODO figure out bucket details e.g. naming, if dynamic, etc. hard code for now
+        const bucketName = 'test-bucket-persistor';
+
+        const bucketParams: S3.GetObjectRequest = {
+            Bucket: bucketName,
+            Key: key
+        };
+
+        const s3Conn = await this.getConnection();
+
+        return new Promise((resolve, reject) => {
+            s3Conn.getObject(bucketParams, (err: Error, data: S3.GetObjectOutput) => {
+                if (err) {
+                    return reject(err);
+                }
+
+                return resolve(data);
+            });
+        });
+    };
+
     deleteDocument() {};
 
     private hasCredentials(): boolean {
