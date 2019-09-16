@@ -14,8 +14,8 @@ export class RemoteDocService {
         return this;
     }
 
-    public async uploadDocument(base64: string, key: string) {
-        return this.remoteDocClient.uploadDocument(base64, key);
+    public async uploadDocument(base64: string, key: string, contentEncoding: string) {
+        return this.remoteDocClient.uploadDocument(base64, key, contentEncoding);
     }
 
     public async downloadDocument(key: string) {
