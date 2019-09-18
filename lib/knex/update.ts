@@ -1,3 +1,8 @@
+import { S3Object } from '../remote-doc/remote-doc-types';
+import { RemoteDocService } from "../remote-doc/RemoteDocService";
+
+let remoteDocService = RemoteDocService.new('S3');
+
 module.exports = function (PersistObjectTemplate) {
 
     var Promise = require('bluebird');
@@ -28,6 +33,7 @@ module.exports = function (PersistObjectTemplate) {
         var isDocumentUpdate = obj.__version__ ? true : false;
         var props = template.getProperties();
         var promises = [];
+        let remoteDocumentUploadQueue = [];
         var dataSaved = {};
 
         obj._id = obj._id || this.createPrimaryKey(obj);
@@ -140,6 +146,17 @@ module.exports = function (PersistObjectTemplate) {
                 dataSaved[foreignKey] = pojo[foreignKey] || 'null';
 
 
+                // @TODO figure out how to compare the class directly
+            } else if (defineProperty.type && defineProperty.type.name === 'S3Object') {
+                if (obj[prop] && obj[prop].body) {
+                    const documentBody = obj[prop].body;
+                    // @TODO add back the intermediary function that helps with keeping rollback key state
+                    remoteDocumentUploadQueue.push(remoteDocService.uploadDocument(documentBody, 'testing-key-meow', 'base64'));
+
+                    // for reference from spike/feature/s3-functionality-integration-component
+                    // remoteDocumentQueue.push(this.uploadToS3.bind(this, pojo, prop, buffer, defineProperty, S3Type, S3Uploader, logger, log));
+                    log(defineProperty, pojo, prop);
+                }
             } else if (defineProperty.type == Array || defineProperty.type == Object) {
                 pojo[prop] = (obj[prop] === null || obj[prop] === undefined)  ? null : JSON.stringify(obj[prop]);
                 log(defineProperty, pojo, prop);
@@ -156,7 +173,12 @@ module.exports = function (PersistObjectTemplate) {
         }
         (logger || this.logger).debug({component: 'persistor', module: 'db', activity: 'dataLogging', data: {template: obj.__template__.__name__, _id: pojo._id, values: dataSaved}});
 
-        promises.push(this.saveKnexPojo(obj, pojo, isDocumentUpdate ? obj._id : null, txn, logger))
+        let resolveS3Promises = async () => {
+            return Promise.all(remoteDocumentUploadQueue).then(this.saveKnexPojo(obj, pojo, isDocumentUpdate ? obj._id : null, txn, logger));
+        };
+
+        promises.push(resolveS3Promises.bind(this));
+
         return Promise.all(promises)
             .then (function () {
                 return obj

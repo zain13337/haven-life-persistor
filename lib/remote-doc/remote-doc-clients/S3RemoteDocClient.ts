@@ -70,8 +70,8 @@ export class S3RemoteDocClient implements RemoteDocClient {
     /**
      * download s3 object by key.
      *
-     * @param {string} key
-     * @returns {Promise<S3.GetObjectOutput>}
+     * @param {string} key - the unique identifier for this item within its s3 bucket
+     * @returns {Promise<S3.GetObjectOutput>} - standard aws result object following an s3 download
      */
     public async downloadDocument(key: string): Promise<S3.GetObjectOutput> {
         // @TODO figure out bucket details e.g. naming, if dynamic, etc. hard code for now

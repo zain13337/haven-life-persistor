@@ -18,6 +18,12 @@ PersistObjectTemplate.debugInfo = 'api;conflict;write;read;data';//'api;io';
 PersistObjectTemplate.debugInfo = 'conflict;data';//'api;io';
 PersistObjectTemplate.logger.setLevel(logLevel);
 
+function S3Object() {
+    this.body = 'I am a people!';
+    this.contentEncoding = 'base64';
+    this.key = 'meow-key';
+};
+
 var Customer = PersistObjectTemplate.create('Customer', {
     init: function (first, middle, last) {
         this.firstName = first;
@@ -34,7 +40,8 @@ var Customer = PersistObjectTemplate.create('Customer', {
     local2:      {type: String, isLocal: true, value: 'local2'},
     nullNumber:  {type: Number, value: null},
     nullDate:    {type: Date, value: null},
-    nullString: {type: String, value: null}
+    nullString: {type: String, value: null},
+    bankingDocument: { type: S3Object, value: new S3Object()}
 });
 
 var Address = PersistObjectTemplate.create('Address', {
@@ -1214,6 +1221,11 @@ describe('Banking from pgsql Example', function () {
                 done();
             });
         }).catch(function(e) {done(e)});
+    });
+
+    // @TODO implement
+    it('can upload a document to S3', function() {
+
     });
 
     after('closes the database', function () {
