@@ -31,7 +31,7 @@ export class RemoteDocService {
             case 'S3':
                 return new S3RemoteDocClient();
             case 'local':
-                return new LocalStorageDocClient();
+                return new LocalStorageDocClient('/Users/mm42359/Documents/');
             default:
                 throw new Error('no remote client specified.');
         }

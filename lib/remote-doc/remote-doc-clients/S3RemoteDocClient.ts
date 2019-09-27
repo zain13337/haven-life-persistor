@@ -1,5 +1,6 @@
 import { RemoteDocClient } from '../remote-doc-types/index';
 import { S3, config, AWSError } from 'aws-sdk';
+import {DeleteObjectRequest} from "aws-sdk/clients/s3";
 
 export class S3RemoteDocClient implements RemoteDocClient {
 
@@ -95,7 +96,34 @@ export class S3RemoteDocClient implements RemoteDocClient {
         });
     };
 
-    deleteDocument() {};
+    /**
+     * assuming a versioned S3 bucket, deleting a document without supplying a version ID places a delete marker
+     * on the object at the top of the stack. on subsequent get, the most recently placed object in that key space
+     * will be returned. without permanent deletion (passing in version ID), all docs still exist in S3.
+     *
+     * @param {string} key
+     * @returns {Promise<any>}
+     */
+    public async deleteDocument(key: string) {
+        const bucketName = 'test-bucket-persistor';
+
+        const params: S3.DeleteObjectRequest = {
+            Bucket: bucketName,
+            Key: key
+        };
+
+        const s3Conn = await this.getConnection();
+
+        return new Promise((resolve, reject) => {
+            s3Conn.deleteObject(params, (err: Error, data: S3.DeleteObjectOutput) => {
+                if (err) {
+                    return reject(err);
+                }
+
+                return resolve(data);
+            });
+        });
+    };
 
     private hasCredentials(): boolean {
         return this.S3Instance && this.S3Instance.config && Boolean(this.S3Instance.config.credentials);

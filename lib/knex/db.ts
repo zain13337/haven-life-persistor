@@ -1,3 +1,5 @@
+import {RemoteDocService} from "../remote-doc/RemoteDocService";
+
 module.exports = function (PersistObjectTemplate) {
 
     var Promise = require('bluebird');
@@ -1222,13 +1224,39 @@ module.exports = function (PersistObjectTemplate) {
             }
 
             function rollback (err) {
-                var deadlock = err.toString().match(/deadlock detected$/i);
+                const deadlock = err.toString().match(/deadlock detected$/i);
                 persistorTransaction.innerError = err;
                 innerError = deadlock ? new Error('Update Conflict') : err;
-                return knexTransaction.rollback(innerError).then (function () {
-                    (logger || this.logger).debug({component: 'persistor', module: 'api', activity: 'end'}, 'transaction rolled back ' +
-                        innerError.message + (deadlock ? ' from deadlock' : ''));
-                }.bind(this));
+                return knexTransaction.rollback(innerError)
+                    .then( async () => {
+                        if (persistorTransaction.remoteObjects && persistorTransaction.remoteObjects.length > 0) {
+                            (logger || this.logger).info({
+                                    component: 'persistor',
+                                    module: 'api',
+                                    activity: 'end'},
+                                `Rolling back transaction of remote keys: ${persistorTransaction.S3Keys.join(', ')
+                            }`);
+                            // only create this remote doc service if we need to.
+                            // @TODO NICK make remote doc client config based
+                            let remoteDocService = RemoteDocService.new('S3');
+
+                            return Promise.all(persistorTransaction.remoteObjects.map(async (key: string) => {
+                                await remoteDocService.deleteDocument(key);
+                            }));
+                        }
+                    }).then(() => {
+                        (logger || this.logger).debug({
+                            component: 'persistor',
+                            module: 'api',
+                            activity: 'end'},
+                            'transaction rolled back ' + innerError.message + (deadlock ? ' from deadlock' : ''));
+                    }).catch((e) => {
+                        (logger || this.logger).error({
+                            component: 'persistor',
+                            module: 'api',
+                            activity: 'end'},
+                        'transaction rollback failed with error', e);
+                    });
             }
 
             function generateChanges(obj, action) {

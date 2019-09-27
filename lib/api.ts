@@ -10,6 +10,8 @@
  *
  */
 
+import { PersistorTransaction } from './types';
+
 
 module.exports = function (PersistObjectTemplate, baseClassForPersist) {
     let supertypeRequire = require('@havenlife/supertype');
@@ -1164,16 +1166,30 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
             });
     }
 
-    PersistObjectTemplate.beginTransaction = function () {
-        var txn = {
-            id: new Date().getTime(), dirtyObjects: {},
-            savedObjects: {}, touchObjects: {}, deletedObjects: {}, deleteQueries: {}
+    PersistObjectTemplate.beginTransaction = function (): PersistorTransaction {
+        return {
+            id: new Date().getTime(),
+            dirtyObjects: {},
+            savedObjects: {},
+            touchObjects: {},
+            deletedObjects: {},
+            remoteObjects: {},
+            deleteQueries: {}
         };
-        return txn;
     };
 
-    PersistObjectTemplate.beginDefaultTransaction = function () {
-        this.__defaultTransaction__ = { id: new Date().getTime(), dirtyObjects: {}, savedObjects: {}, touchObjects: {}, deletedObjects: {} };
+    PersistObjectTemplate.beginDefaultTransaction = function (): PersistorTransaction {
+        const defaultTransaction: PersistorTransaction = {
+            id: new Date().getTime(),
+            dirtyObjects: {},
+            savedObjects: {},
+            touchObjects: {},
+            deletedObjects: {},
+            remoteObjects: {},
+            deleteQueries: {}
+        };
+
+        this.__defaultTransaction__ = defaultTransaction;
         return this.__defaultTransaction__;
     };
 
