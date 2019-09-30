@@ -1,4 +1,4 @@
-import { S3Object } from '../remote-doc/remote-doc-types';
+import { RemoteObject } from '../remote-doc/remote-doc-types';
 import { RemoteDocService } from "../remote-doc/RemoteDocService";
 
 let remoteDocService = RemoteDocService.new('S3');
@@ -146,16 +146,39 @@ module.exports = function (PersistObjectTemplate) {
                 dataSaved[foreignKey] = pojo[foreignKey] || 'null';
 
 
-                // @TODO figure out how to compare the class directly
-            } else if (defineProperty.type && defineProperty.type.name === 'S3Object') {
-                if (obj[prop] && obj[prop].body) {
-                    const documentBody = obj[prop].body;
-                    // @TODO add back the intermediary function that helps with keeping rollback key state
-                    remoteDocumentUploadQueue.push(remoteDocService.uploadDocument(documentBody, 'testing-key-meow', 'base64'));
+                // @TODO NICK figure out how to compare the class directly
+            } else if (defineProperty.type && defineProperty.type.name === 'RemoteObject') {
+                const uniqueIdentifier = Date.now().toString();
+
+                const remoteObject: RemoteObject = obj[prop];
+
+                if (remoteObject && remoteObject.body && remoteObject.key && remoteObject.contentEncoding) {
+                    // the contents of the object we want to save in the remote store
+                    const documentBody = remoteObject.body;
+
+                    // unique identifier to find the object we're saving in the remote store
+                    const objectKey = `${remoteObject.key}-${uniqueIdentifier}`;
+
+                    const encoding = remoteObject.contentEncoding;
+
+                    // @TODO NICK bring in the encoding from the property definition
+                    remoteDocumentUploadQueue.push(remoteDocService.uploadDocument(documentBody, objectKey, encoding));
+
+                    // only place a reference to the remote object in the database itself - not the actual
+                    // contents of the property.
+                    pojo[prop] = objectKey;
 
                     // for reference from spike/feature/s3-functionality-integration-component
                     // remoteDocumentQueue.push(this.uploadToS3.bind(this, pojo, prop, buffer, defineProperty, S3Type, S3Uploader, logger, log));
                     log(defineProperty, pojo, prop);
+                } else if(!remoteObject.body){
+                    throw new Error('RemoteObject missing object body');
+                } else if(!remoteObject.key) {
+                    throw new Error('RemoteObject missing unique identifier key for storage');
+                } else if(!remoteObject.contentEncoding) {
+                    throw new Error('RemoteObject missing content encoding type');
+                } else {
+                    throw new Error('Something unexpected happened when saving a remote doc');
                 }
             } else if (defineProperty.type == Array || defineProperty.type == Object) {
                 pojo[prop] = (obj[prop] === null || obj[prop] === undefined)  ? null : JSON.stringify(obj[prop]);

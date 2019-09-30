@@ -1234,7 +1234,7 @@ module.exports = function (PersistObjectTemplate) {
                                     component: 'persistor',
                                     module: 'api',
                                     activity: 'end'},
-                                `Rolling back transaction of remote keys: ${persistorTransaction.S3Keys.join(', ')
+                                `Rolling back transaction of remote keys: ${persistorTransaction.remoteObjects.join(', ')
                             }`);
                             // only create this remote doc service if we need to.
                             // @TODO NICK make remote doc client config based
