@@ -1,6 +1,5 @@
 import { RemoteDocClient } from '../remote-doc-types/index';
 import { S3, config, AWSError } from 'aws-sdk';
-import {DeleteObjectRequest} from "aws-sdk/clients/s3";
 
 export class S3RemoteDocClient implements RemoteDocClient {
 
