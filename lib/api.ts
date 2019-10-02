@@ -165,11 +165,8 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 component: 'persistor', module: 'api', activity: 'getFromPersistWithId',
                 data: { template: template.__name__, id: id }
             });
-            //
             var dbType = PersistObjectTemplate.getDB(PersistObjectTemplate.getDBAlias(template.__collection__)).type;
             const time = getTime();
-
-            // figure out the type of thing that this is based on supertype class, use a special get from persist from S3
 
             let getQuery = (dbType == PersistObjectTemplate.DB_Mongo ?
                 PersistObjectTemplate.getFromPersistWithMongoId(template, id, cascade, isTransient, idMap, logger) :

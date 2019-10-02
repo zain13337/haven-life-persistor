@@ -18,11 +18,11 @@ PersistObjectTemplate.debugInfo = 'api;conflict;write;read;data';//'api;io';
 PersistObjectTemplate.debugInfo = 'conflict;data';//'api;io';
 PersistObjectTemplate.logger.setLevel(logLevel);
 
-function S3Object() {
+function RemoteObject() {
     this.body = 'I am a people!';
-    this.contentEncoding = 'base64';
-    this.key = 'meow-key';
-};
+    this.contentEncoding = 'ascii';
+    this.key = 'test-remote-key';
+}
 
 var Customer = PersistObjectTemplate.create('Customer', {
     init: function (first, middle, last) {
@@ -41,7 +41,7 @@ var Customer = PersistObjectTemplate.create('Customer', {
     nullNumber:  {type: Number, value: null},
     nullDate:    {type: Date, value: null},
     nullString: {type: String, value: null},
-    bankingDocument: { type: S3Object, value: new S3Object()}
+    bankingDocument: { type: RemoteObject, value: new RemoteObject()}
 });
 
 var Address = PersistObjectTemplate.create('Address', {
@@ -1223,10 +1223,18 @@ describe('Banking from pgsql Example', function () {
         }).catch(function(e) {done(e)});
     });
 
-    // @TODO implement
-    it('can upload a document to S3', function() {
-
-    });
+    // it('can upload an object to remote store', function(done) {
+    //     var txn = PersistObjectTemplate.begin();
+    //     var customer = new Customer('RemoteObjectTest', 'M', 'Last');
+    //     customer.persistSave(txn);
+    //     PersistObjectTemplate.end(txn).then(function () {
+    //         console.log('saved  remote object customer with id', customer._id);
+    //         return Customer.getFromPersistWithId(customer._id);
+    //     }).then(function(customer) {
+    //         console.log('got customer from db', customer, customer.bankingDocument);
+    //         done();
+    //     })
+    // });
 
     after('closes the database', function () {
         return knex.destroy();

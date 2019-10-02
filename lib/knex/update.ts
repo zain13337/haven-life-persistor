@@ -1,7 +1,7 @@
 import { RemoteObject } from '../remote-doc/remote-doc-types';
 import { RemoteDocService } from "../remote-doc/RemoteDocService";
 
-let remoteDocService = RemoteDocService.new('S3');
+let remoteDocService = RemoteDocService.new('local');
 
 module.exports = function (PersistObjectTemplate) {
 
@@ -22,7 +22,7 @@ module.exports = function (PersistObjectTemplate) {
      * @param {object} logger object template logger
      * @returns {*}
      */
-    PersistObjectTemplate.persistSaveKnex = function(obj, txn, logger) {
+    PersistObjectTemplate.persistSaveKnex = async function(obj, txn, logger): Promise<any> {
 
         (logger || this.logger).debug({component: 'persistor', module: 'db.persistSaveKnex', activity: 'pre', data:{template: obj.__template__.__name__, id: obj.__id__, _id: obj._id}});
         this.checkObject(obj);
@@ -33,7 +33,6 @@ module.exports = function (PersistObjectTemplate) {
         var isDocumentUpdate = obj.__version__ ? true : false;
         var props = template.getProperties();
         var promises = [];
-        let remoteDocumentUploadQueue = [];
         var dataSaved = {};
 
         obj._id = obj._id || this.createPrimaryKey(obj);
@@ -148,7 +147,7 @@ module.exports = function (PersistObjectTemplate) {
 
                 // @TODO NICK figure out how to compare the class directly
             } else if (defineProperty.type && defineProperty.type.name === 'RemoteObject') {
-                const uniqueIdentifier = Date.now().toString();
+                const uniqueEnoughIdentifier = Date.now().toString();
 
                 const remoteObject: RemoteObject = obj[prop];
 
@@ -157,12 +156,12 @@ module.exports = function (PersistObjectTemplate) {
                     const documentBody = remoteObject.body;
 
                     // unique identifier to find the object we're saving in the remote store
-                    const objectKey = `${remoteObject.key}-${uniqueIdentifier}`;
+                    const objectKey = `${remoteObject.key}-${uniqueEnoughIdentifier}`;
 
                     const encoding = remoteObject.contentEncoding;
 
-                    // @TODO NICK bring in the encoding from the property definition
-                    remoteDocumentUploadQueue.push(remoteDocService.uploadDocument(documentBody, objectKey, encoding));
+                    // grab the document from remote store
+                    await remoteDocService.uploadDocument(documentBody, objectKey, encoding);
 
                     // only place a reference to the remote object in the database itself - not the actual
                     // contents of the property.
@@ -196,16 +195,11 @@ module.exports = function (PersistObjectTemplate) {
         }
         (logger || this.logger).debug({component: 'persistor', module: 'db', activity: 'dataLogging', data: {template: obj.__template__.__name__, _id: pojo._id, values: dataSaved}});
 
-        let resolveS3Promises = async () => {
-            return Promise.all(remoteDocumentUploadQueue).then(this.saveKnexPojo(obj, pojo, isDocumentUpdate ? obj._id : null, txn, logger));
-        };
+        promises.push(this.saveKnexPojo(obj, pojo, isDocumentUpdate ? obj._id : null, txn, logger));
 
-        promises.push(resolveS3Promises.bind(this));
+        await Promise.all(promises);
+        return obj;
 
-        return Promise.all(promises)
-            .then (function () {
-                return obj
-            });
         function log(defineProperty, pojo, prop) {
             if (defineProperty.logChanges)
                 dataSaved[prop]  = pojo[prop];
@@ -230,27 +224,4 @@ module.exports = function (PersistObjectTemplate) {
                 obj[prop] = copyProps(obj[prop]);
         }
     }
-    // /**
-    //  * Remove objects from a collection/table
-    //  *
-    //  * @param {object} template supertype
-    //  * @param {object/function} query conditions to use, can even pass functions to add extra conditions
-    //  * @param {object} txn transaction object
-    //  * @param {object} _logger objecttemplate logger
-    //  */
-    // PersistObjectTemplate.deleteFromPersistWithKnexQuery = function(template, query, txn, logger)
-    // {
-    //     return this.deleteFromKnexQuery(template, query, txn, logger);
-    // }
-    //
-    // /**
-    //  * Remove object from a collection/table
-    //  *
-    //  * @param options
-    //  */
-    // PersistObjectTemplate.deleteFromPersistWithKnexId = function(template, id, txn, logger)
-    // {
-    //     return this.deleteFromKnexId(template, id, txn, logger);
-    // }
-
 }

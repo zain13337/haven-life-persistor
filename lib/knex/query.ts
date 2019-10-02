@@ -1,3 +1,8 @@
+import { RemoteObject } from '../remote-doc/remote-doc-types';
+import { RemoteDocService } from '../remote-doc/RemoteDocService';
+
+let remoteDocService = RemoteDocService.new('local');
+
 module.exports = function (PersistObjectTemplate) {
 
     var Promise = require('bluebird');
@@ -166,7 +171,7 @@ module.exports = function (PersistObjectTemplate) {
      * @returns {*} an object via a promise as though it was created with new template()
      */
     PersistObjectTemplate.getTemplateFromKnexPOJO =
-        function (pojo, template, requests, idMap, cascade, isTransient, defineProperty, establishedObj, specificProperties, prefix, joins, isRefresh, logger, enableChangeTracking, projection, orgCascade)
+        async function (pojo, template, requests, idMap, cascade, isTransient, defineProperty, establishedObj, specificProperties, prefix, joins, isRefresh, logger, enableChangeTracking, projection, orgCascade)
         {
             var self = this;
             prefix = prefix || '';
@@ -312,32 +317,55 @@ module.exports = function (PersistObjectTemplate) {
                             updatePersistorProp(obj, persistorPropertyName, {isFetched: false, id: foreignId})
                         }
                     }
-                } else
-                if (typeof(pojo[prefix + prop]) != 'undefined') {
-                    value = pojo[prefix + prop];
-                    this.withoutChangeTracking(function () {
-                        if (type == Date)
-                            obj[prop] = value ? new Date(value * 1) : null;
-                        else if (type == Number)
-                            obj[prop] = (!value && value !== 0) ? null : value * 1;
-                        else if (type == Object || type == Array)
-                            try {
-                                obj[prop] = value ? JSON.parse(value) : null;
-                            } catch (e) {
-                                (logger || this.logger).debug({component: 'persistor', module: 'query', activity: 'getTemplateFromKnexPOJO',
-                                    data: 'Error retrieving ' + obj.__id__ + '.' + prop + ' -- ' + e.message});
-                                obj[prop] = null;
-                            }
-                        else
-                            obj[prop] = value;
-                        if (enableChangeTracking) {
-                            obj['_ct_org_' + prop] = obj[prop];
+                }
+                else if (type && type.name === 'RemoteObject') {
+                    // if we have a remote object type, fetch it and place it in the template
+                    if (value && typeof value === 'string') {
+                        try {
+                            obj[prop] = await remoteDocService.downloadDocument(value);
+                        } catch (e) {
+                            (logger || this.logger).debug({component: 'persistor', module: 'query', activity: 'getTemplateFromKnexPOJO',
+                                data: `there was a problem downloading the remote object from source. Error: ${e}.`});
+                            obj[prop] = null;
                         }
-                    }.bind(this));
+                    } else {
+                        (logger || this.logger).debug({component: 'persistor', module: 'query', activity: 'getTemplateFromKnexPOJO',
+                            data: 'remote object key must be a string' });
+                        obj[prop] = null;
+                    }
+                }
+                else {
+                    if (typeof(pojo[prefix + prop]) != 'undefined') {
+                        value = pojo[prefix + prop];
+                        this.withoutChangeTracking(function () {
+                            if (type == Date)
+                                obj[prop] = value ? new Date(value * 1) : null;
+                            else if (type == Number) {
+                                obj[prop] = (!value && value !== 0) ? null : value * 1;
+                            }
+                            else if (type == Object || type == Array) {
+                                try {
+                                    obj[prop] = value ? JSON.parse(value) : null;
+                                } catch (e) {
+                                    (logger || this.logger).debug({component: 'persistor', module: 'query', activity: 'getTemplateFromKnexPOJO',
+                                        data: 'Error retrieving ' + obj.__id__ + '.' + prop + ' -- ' + e.message});
+                                    obj[prop] = null;
+                                }
+                            }
+                            else {
+                                obj[prop] = value;
+                            }
+
+
+                            if (enableChangeTracking) {
+                                obj['_ct_org_' + prop] = obj[prop];
+                            }
+                        }.bind(this));
+                    }
                 }
             }
             if (topLevel)
-                return this.resolveRecursiveRequests(requests, obj)
+                return this.resolveRecursiveRequests(requests, obj);
             else
                 return Promise.resolve(obj);
 
