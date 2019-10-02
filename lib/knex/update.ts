@@ -146,19 +146,19 @@ module.exports = function (PersistObjectTemplate) {
 
 
                 // @TODO NICK figure out how to compare the class directly
-            } else if (defineProperty.type && defineProperty.type.name === 'RemoteObject') {
+            } else if (defineProperty.isRemoteObject && defineProperty.isRemoteObject === true) {
                 const uniqueEnoughIdentifier = Date.now().toString();
 
-                const remoteObject: RemoteObject = obj[prop];
+                const remoteObject: string = obj[prop];
 
-                if (remoteObject && remoteObject.body && remoteObject.key && remoteObject.contentEncoding) {
+                if (remoteObject && defineProperty.key && defineProperty.contentEncoding) {
                     // the contents of the object we want to save in the remote store
-                    const documentBody = remoteObject.body;
+                    const documentBody = remoteObject;
 
                     // unique identifier to find the object we're saving in the remote store
-                    const objectKey = `${remoteObject.key}-${uniqueEnoughIdentifier}`;
+                    const objectKey = `${defineProperty.key}-${uniqueEnoughIdentifier}`;
 
-                    const encoding = remoteObject.contentEncoding;
+                    const encoding = defineProperty.contentEncoding;
 
                     // grab the document from remote store
                     await remoteDocService.uploadDocument(documentBody, objectKey, encoding);
@@ -170,12 +170,10 @@ module.exports = function (PersistObjectTemplate) {
                     // for reference from spike/feature/s3-functionality-integration-component
                     // remoteDocumentQueue.push(this.uploadToS3.bind(this, pojo, prop, buffer, defineProperty, S3Type, S3Uploader, logger, log));
                     log(defineProperty, pojo, prop);
-                } else if(!remoteObject.body){
-                    throw new Error('RemoteObject missing object body');
-                } else if(!remoteObject.key) {
-                    throw new Error('RemoteObject missing unique identifier key for storage');
-                } else if(!remoteObject.contentEncoding) {
-                    throw new Error('RemoteObject missing content encoding type');
+                } else if(remoteObject && !defineProperty.key) {
+                    throw new Error('RemoteObject missing unique identifier key for storage in decorator');
+                } else if(remoteObject && !defineProperty.contentEncoding) {
+                    throw new Error('RemoteObject missing content encoding type in decorator');
                 } else {
                     throw new Error('Something unexpected happened when saving a remote doc');
                 }

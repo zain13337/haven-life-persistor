@@ -18,12 +18,6 @@ PersistObjectTemplate.debugInfo = 'api;conflict;write;read;data';//'api;io';
 PersistObjectTemplate.debugInfo = 'conflict;data';//'api;io';
 PersistObjectTemplate.logger.setLevel(logLevel);
 
-function RemoteObject() {
-    this.body = 'I am a people!';
-    this.contentEncoding = 'ascii';
-    this.key = 'test-remote-key';
-}
-
 var Customer = PersistObjectTemplate.create('Customer', {
     init: function (first, middle, last) {
         this.firstName = first;
@@ -41,7 +35,12 @@ var Customer = PersistObjectTemplate.create('Customer', {
     nullNumber:  {type: Number, value: null},
     nullDate:    {type: Date, value: null},
     nullString: {type: String, value: null},
-    bankingDocument: { type: RemoteObject, value: new RemoteObject()}
+    bankingDocument: { type: String,
+        isRemoteObject: true,
+        remoteKeyBase: 'test-remote-key',
+        contentEncoding: 'ascii',
+        value: null
+    }
 });
 
 var Address = PersistObjectTemplate.create('Address', {
@@ -1223,18 +1222,20 @@ describe('Banking from pgsql Example', function () {
         }).catch(function(e) {done(e)});
     });
 
-    // it('can upload an object to remote store', function(done) {
-    //     var txn = PersistObjectTemplate.begin();
-    //     var customer = new Customer('RemoteObjectTest', 'M', 'Last');
-    //     customer.persistSave(txn);
-    //     PersistObjectTemplate.end(txn).then(function () {
-    //         console.log('saved  remote object customer with id', customer._id);
-    //         return Customer.getFromPersistWithId(customer._id);
-    //     }).then(function(customer) {
-    //         console.log('got customer from db', customer, customer.bankingDocument);
-    //         done();
-    //     })
-    // });
+    it('can upload an object to remote store', function(done) {
+        var txn = PersistObjectTemplate.begin();
+        var customer = new Customer('RemoteObjectTest', 'M', 'Meow');
+        customer.bankingDocument = 'I am a people!';
+        customer.persistSave(txn);
+        PersistObjectTemplate.end(txn).then(function () {
+            console.log('saved  remote object customer with id', customer._id);
+            return Customer.getFromPersistWithId(customer._id);
+        }).then(function(customer) {
+            console.log('got customer from db', customer, customer.bankingDocument);
+            expect(customer.bankingDocument).to.equal('I am a people!');
+            done();
+        });
+    });
 
     after('closes the database', function () {
         return knex.destroy();

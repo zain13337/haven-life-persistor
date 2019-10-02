@@ -243,6 +243,7 @@ module.exports = function (PersistObjectTemplate) {
                 defineProperty = props[prop];
                 var type = defineProperty.type;
                 var of = defineProperty.of;
+                const isRemoteDoc = defineProperty.isRemoteObject;
                 var cascadeFetch = (cascade && typeof(cascade[prop] != 'undefined')) ? cascade[prop] : null;
                 if (cascadeFetch && cascadeFetch.fetch) {
                     Object.keys(cascadeFetch.fetch).map(key => {
@@ -318,7 +319,7 @@ module.exports = function (PersistObjectTemplate) {
                         }
                     }
                 }
-                else if (type && type.name === 'RemoteObject') {
+                else if (isRemoteDoc) {
                     // if we have a remote object type, fetch it and place it in the template
                     if (value && typeof value === 'string') {
                         try {
