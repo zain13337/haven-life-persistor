@@ -48,7 +48,12 @@ export class LocalStorageDocClient implements RemoteDocClient {
                 if(err) {
                     reject(err);
                 }
-                resolve(data.toString());
+
+                if(data) {
+                    resolve(data.toString());
+                } else {
+                    resolve();
+                }
             });
         });
     };

@@ -1,4 +1,3 @@
-import { RemoteObject } from '../remote-doc/remote-doc-types';
 import { RemoteDocService } from '../remote-doc/RemoteDocService';
 
 let remoteDocService = RemoteDocService.new('local');
@@ -331,7 +330,7 @@ module.exports = function (PersistObjectTemplate) {
                         }
                     } else {
                         (logger || this.logger).debug({component: 'persistor', module: 'query', activity: 'getTemplateFromKnexPOJO',
-                            data: 'remote object key must be a string' });
+                            data: 'there was a problem. remote object key must be a string' });
                         obj[prop] = null;
                     }
                 }

@@ -1,4 +1,3 @@
-import { RemoteObject } from '../remote-doc/remote-doc-types';
 import { RemoteDocService } from "../remote-doc/RemoteDocService";
 
 let remoteDocService = RemoteDocService.new('local');
@@ -144,38 +143,46 @@ module.exports = function (PersistObjectTemplate) {
 
                 dataSaved[foreignKey] = pojo[foreignKey] || 'null';
 
-
-                // @TODO NICK figure out how to compare the class directly
             } else if (defineProperty.isRemoteObject && defineProperty.isRemoteObject === true) {
-                const uniqueEnoughIdentifier = Date.now().toString();
+                const uniqueEnoughIdentifier = Date.now().toString() + Math.random().toString().substring(2);
 
                 const remoteObject: string = obj[prop];
 
-                if (remoteObject && defineProperty.key && defineProperty.contentEncoding) {
+                if (remoteObject && defineProperty.remoteKeyBase && defineProperty.contentEncoding) {
                     // the contents of the object we want to save in the remote store
                     const documentBody = remoteObject;
 
                     // unique identifier to find the object we're saving in the remote store
-                    const objectKey = `${defineProperty.key}-${uniqueEnoughIdentifier}`;
+                    const objectKey = `${defineProperty.remoteKeyBase}-${uniqueEnoughIdentifier}`;
 
                     const encoding = defineProperty.contentEncoding;
 
-                    // grab the document from remote store
-                    await remoteDocService.uploadDocument(documentBody, objectKey, encoding);
+                    try {
+                        // grab the document from remote store
+                        await remoteDocService.uploadDocument(documentBody, objectKey, encoding);
 
-                    // only place a reference to the remote object in the database itself - not the actual
-                    // contents of the property.
-                    pojo[prop] = objectKey;
+                        // only place a reference to the remote object in the database itself - not the actual
+                        // contents of the property.
+                        pojo[prop] = objectKey;
 
-                    // for reference from spike/feature/s3-functionality-integration-component
-                    // remoteDocumentQueue.push(this.uploadToS3.bind(this, pojo, prop, buffer, defineProperty, S3Type, S3Uploader, logger, log));
-                    log(defineProperty, pojo, prop);
-                } else if(remoteObject && !defineProperty.key) {
+                        // for reference from spike/feature/s3-functionality-integration-component
+                        // remoteDocumentQueue.push(this.uploadToS3.bind(this, pojo, prop, buffer, defineProperty, S3Type, S3Uploader, logger, log));
+                        log(defineProperty, pojo, prop);
+                    } catch (e) {
+                        (logger || this.logger).error({
+                            component: 'persistor',
+                            module: 'update',
+                            activity: 'persistSaveKnex',
+                            data: {
+                                template: obj.__template__.__name__,
+                                errorMessage: e
+                            }
+                        });
+                    }
+                } else if (remoteObject && !defineProperty.remoteKeyBase) {
                     throw new Error('RemoteObject missing unique identifier key for storage in decorator');
-                } else if(remoteObject && !defineProperty.contentEncoding) {
+                } else if (remoteObject && !defineProperty.contentEncoding) {
                     throw new Error('RemoteObject missing content encoding type in decorator');
-                } else {
-                    throw new Error('Something unexpected happened when saving a remote doc');
                 }
             } else if (defineProperty.type == Array || defineProperty.type == Object) {
                 pojo[prop] = (obj[prop] === null || obj[prop] === undefined)  ? null : JSON.stringify(obj[prop]);

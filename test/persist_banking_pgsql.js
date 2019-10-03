@@ -39,7 +39,7 @@ var Customer = PersistObjectTemplate.create('Customer', {
         isRemoteObject: true,
         remoteKeyBase: 'test-remote-key',
         contentEncoding: 'ascii',
-        value: null
+        value: 'default value!'
     }
 });
 
@@ -1188,6 +1188,21 @@ describe('Banking from pgsql Example', function () {
         });
     });
 
+    it('can save / retrieve a document to remote store', function(done) {
+        Customer.getFromPersistWithId(sam._id).then(function(samRemoteDoc) {
+            samRemoteDoc.bankingDocument = 'meow!';
+            return samRemoteDoc.persistSave();
+        }).then(function () {
+            return Customer.getFromPersistWithId(sam._id);
+        }).then(function(customerOutput) {
+            expect(customerOutput.bankingDocument).to.equal('meow!');
+            done();
+        }).catch(function(e) {
+            console.log('error happened', e);
+            done();
+        });
+    });
+
 
     it('can delete', function (done) {
         Customer.getFromPersistWithQuery({}, {roles: {fetch: {account: true}}}).then (function (customers) {
@@ -1220,21 +1235,6 @@ describe('Banking from pgsql Example', function () {
                 done();
             });
         }).catch(function(e) {done(e)});
-    });
-
-    it('can upload an object to remote store', function(done) {
-        var txn = PersistObjectTemplate.begin();
-        var customer = new Customer('RemoteObjectTest', 'M', 'Meow');
-        customer.bankingDocument = 'I am a people!';
-        customer.persistSave(txn);
-        PersistObjectTemplate.end(txn).then(function () {
-            console.log('saved  remote object customer with id', customer._id);
-            return Customer.getFromPersistWithId(customer._id);
-        }).then(function(customer) {
-            console.log('got customer from db', customer, customer.bankingDocument);
-            expect(customer.bankingDocument).to.equal('I am a people!');
-            done();
-        });
     });
 
     after('closes the database', function () {
