@@ -1198,7 +1198,6 @@ describe('Banking from pgsql Example', function () {
             expect(customerOutput.bankingDocument).to.equal('meow!');
             done();
         }).catch(function(e) {
-            console.log('error happened', e);
             done();
         });
     });
