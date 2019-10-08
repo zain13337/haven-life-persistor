@@ -8,6 +8,8 @@ var expect = require('chai').expect;
 var util = require('util');
 var Promise = require('bluebird');
 var _ = require('underscore');
+var path = require('path');
+var fs = require('fs');
 var ObjectTemplate = require('@havenlife/supertype').default;
 var PersistObjectTemplate = require('../dist/index.js')(ObjectTemplate, null, ObjectTemplate);
 var writing = true;
@@ -38,7 +40,6 @@ var Customer = PersistObjectTemplate.create('Customer', {
     bankingDocument: { type: String,
         isRemoteObject: true,
         remoteKeyBase: 'test-remote-key',
-        contentEncoding: 'ascii',
         value: 'default value!'
     }
 });
@@ -333,6 +334,7 @@ describe('Banking from pgsql Example', function () {
                 PersistObjectTemplate.setDB(knex, PersistObjectTemplate.DB_Knex,  'pg');
                 PersistObjectTemplate.setSchema(schema);
                 PersistObjectTemplate.performInjections(); // Normally done by getTemplates
+                PersistObjectTemplate.setRemoteDocConnection('bucket-test-name', 'local');
             }).catch(function(e) {throw e;});
     });
     var schemaTable = 'index_schema_history';

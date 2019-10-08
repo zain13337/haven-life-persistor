@@ -148,18 +148,18 @@ module.exports = function (PersistObjectTemplate) {
 
                 const remoteObject: string = obj[prop];
 
-                if (remoteObject && defineProperty.remoteKeyBase && defineProperty.contentEncoding) {
+                if (remoteObject && defineProperty.remoteKeyBase) {
                     // the contents of the object we want to save in the remote store
                     const documentBody = remoteObject;
 
                     // unique identifier to find the object we're saving in the remote store
                     const objectKey = `${defineProperty.remoteKeyBase}-${uniqueEnoughIdentifier}`;
 
-                    const encoding = defineProperty.contentEncoding;
+                    const bucket = this.bucketName;
 
                     try {
                         // grab the document from remote store
-                        await remoteDocService.uploadDocument(documentBody, objectKey, encoding);
+                        await remoteDocService.uploadDocument(documentBody, objectKey, bucket);
 
                         // only place a reference to the remote object in the database itself - not the actual
                         // contents of the property.
@@ -181,8 +181,6 @@ module.exports = function (PersistObjectTemplate) {
                     }
                 } else if (remoteObject && !defineProperty.remoteKeyBase) {
                     throw new Error('RemoteObject missing unique identifier key for storage in decorator');
-                } else if (remoteObject && !defineProperty.contentEncoding) {
-                    throw new Error('RemoteObject missing content encoding type in decorator');
                 }
             } else if (defineProperty.type == Array || defineProperty.type == Object) {
                 pojo[prop] = (obj[prop] === null || obj[prop] === undefined)  ? null : JSON.stringify(obj[prop]);

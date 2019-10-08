@@ -14,16 +14,16 @@ export class RemoteDocService {
         return this;
     }
 
-    public async uploadDocument(base64: string, key: string, contentEncoding: string) {
-        return this.remoteDocClient.uploadDocument(base64, key, contentEncoding);
+    public async uploadDocument(base64: string, key: string, bucket: string) {
+        return this.remoteDocClient.uploadDocument(base64, key, bucket);
     }
 
-    public async downloadDocument(key: string) {
-        return this.remoteDocClient.downloadDocument(key);
+    public async downloadDocument(key: string, bucket: string) {
+        return this.remoteDocClient.downloadDocument(key, bucket);
     }
 
-    public async deleteDocument(key: string) {
-        return this.remoteDocClient.deleteDocument(key);
+    public async deleteDocument(key: string, bucket: string) {
+        return this.remoteDocClient.deleteDocument(key, bucket);
     }
 
     private static remoteDocClientFactory (remoteDocClient: string): RemoteDocClient {
@@ -31,7 +31,7 @@ export class RemoteDocService {
             case 'S3':
                 return new S3RemoteDocClient();
             case 'local':
-                return new LocalStorageDocClient('/Users/mm42359/Documents/');
+                return new LocalStorageDocClient();
             default:
                 throw new Error('no remote client specified.');
         }

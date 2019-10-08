@@ -10,13 +10,13 @@ export class S3RemoteDocClient implements RemoteDocClient {
      *
      * @returns {Promise<S3>}
      */
-    private async getConnection(): Promise<S3> {
+    private async getConnection(bucket: string): Promise<S3> {
 
         if (!this.hasCredentials() || (this.hasCredentials() && !this.isCredentialsValid())) {
-            // @TODO remove hard coding
-            const endPoint = 'https://s3.amazonaws.com/' + 'test-bucket-persistor';
+            // @TODO NICK make this config driven
+            const endPoint = 'https://s3.amazonaws.com/' + bucket;
 
-            // @TODO make this config driven
+            // @TODO NICK make this config driven
             config.update({
                 accessKeyId: "",
                 secretAccessKey: ""
@@ -40,21 +40,17 @@ export class S3RemoteDocClient implements RemoteDocClient {
      *
      * @param s3ObjectToBeUploaded - the specific item being uploaded to s3
      * @param {string} key - the unique identifier for this item within its s3 bucket
-     * @param {string} contentEncoding - encoding of the item
+     * @param {string} bucket - the name of the s3 bucket
      * @returns {Promise<S3.PutObjectOutput>} - standard aws result object following an s3 upload
      */
-    public async uploadDocument(s3ObjectToBeUploaded: string, key: string, contentEncoding: string): Promise<S3.PutObjectOutput> {
-        // @TODO figure out bucket details e.g. naming, if dynamic, etc. hard code for now
-        const bucketName = 'test-bucket-persistor';
-
+    public async uploadDocument(s3ObjectToBeUploaded: string, key: string, bucket: string): Promise<S3.PutObjectOutput> {
         const bucketParams: S3.PutObjectRequest = {
-            Bucket: bucketName,
+            Bucket: bucket,
             Key: key,
-            Body: s3ObjectToBeUploaded,
-            ContentEncoding: contentEncoding
+            Body: s3ObjectToBeUploaded
         };
 
-        const s3Conn = await this.getConnection();
+        const s3Conn = await this.getConnection(bucket);
 
         return new Promise((resolve, reject) => {
             (<AWS.S3>s3Conn).putObject(bucketParams, async (err: AWSError, data: S3.PutObjectOutput) => {
@@ -71,18 +67,16 @@ export class S3RemoteDocClient implements RemoteDocClient {
      * download s3 object by key.
      *
      * @param {string} key - the unique identifier for this item within its s3 bucket
+     * @param {string} bucket - the name of the s3 bucket
      * @returns {Promise<S3.GetObjectOutput>} - standard aws result object following an s3 download
      */
-    public async downloadDocument(key: string): Promise<S3.GetObjectOutput> {
-        // @TODO figure out bucket details e.g. naming, if dynamic, etc. hard code for now
-        const bucketName = 'test-bucket-persistor';
-
+    public async downloadDocument(key: string, bucket: string): Promise<S3.GetObjectOutput> {
         const bucketParams: S3.GetObjectRequest = {
-            Bucket: bucketName,
+            Bucket: bucket,
             Key: key
         };
 
-        const s3Conn = await this.getConnection();
+        const s3Conn = await this.getConnection(bucket);
 
         return new Promise((resolve, reject) => {
             s3Conn.getObject(bucketParams, (err: Error, data: S3.GetObjectOutput) => {
@@ -100,18 +94,17 @@ export class S3RemoteDocClient implements RemoteDocClient {
      * on the object at the top of the stack. on subsequent get, the most recently placed object in that key space
      * will be returned. without permanent deletion (passing in version ID), all docs still exist in S3.
      *
-     * @param {string} key
+     * @param {string} key - the unique identifier for this item within its s3 bucket
+     * @param {string} bucket - the name of the s3 bucket
      * @returns {Promise<any>}
      */
-    public async deleteDocument(key: string) {
-        const bucketName = 'test-bucket-persistor';
-
+    public async deleteDocument(key: string, bucket: string) {
         const params: S3.DeleteObjectRequest = {
-            Bucket: bucketName,
+            Bucket: bucket,
             Key: key
         };
 
-        const s3Conn = await this.getConnection();
+        const s3Conn = await this.getConnection(bucket);
 
         return new Promise((resolve, reject) => {
             s3Conn.deleteObject(params, (err: Error, data: S3.DeleteObjectOutput) => {

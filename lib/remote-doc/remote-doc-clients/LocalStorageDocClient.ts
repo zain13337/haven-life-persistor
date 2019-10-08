@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as path from 'path';
 import { RemoteDocClient } from '../remote-doc-types/index';
 
 /**
@@ -8,12 +9,18 @@ export class LocalStorageDocClient implements RemoteDocClient {
 
     private fileBaseDirectory: string;
 
-    constructor(filePath: string) {
-        return this.init(filePath);
+    constructor() {
+        return this.init();
     }
 
-    init(filePath: string): this {
-        this.fileBaseDirectory = filePath;
+    init(): this {
+        let remoteDocStorageDir = path.join(path.dirname(require.main.filename), 'remoteDocStorageDir');
+
+        if (!fs.existsSync(remoteDocStorageDir)) {
+            fs.mkdirSync(remoteDocStorageDir);
+        }
+
+        this.fileBaseDirectory = remoteDocStorageDir;
         return this;
     }
 
@@ -22,12 +29,12 @@ export class LocalStorageDocClient implements RemoteDocClient {
      *
      * @param {string} obj
      * @param {string} key
-     * @param {string} contentEncoding
+     * @param {string} bucket
      * @returns {Promise<any>}
      */
-    async uploadDocument(obj: string, key: string, contentEncoding: string) {
+    async uploadDocument(obj: string, key: string, bucket: string) {
         return new Promise((resolve, reject) => {
-            fs.writeFile(this.fileBaseDirectory + key + '.txt', obj, { encoding: contentEncoding }, (err: NodeJS.ErrnoException) => {
+            fs.writeFile(this.fileBaseDirectory + bucket + '_' +  key + '.txt', obj, (err: NodeJS.ErrnoException) => {
                 if(err) {
                     reject(err);
                 }
@@ -40,11 +47,12 @@ export class LocalStorageDocClient implements RemoteDocClient {
      * read the document from the filesystem.
      *
      * @param {string} key
+     * @param {string} bucket
      * @returns {Promise<any>}
      */
-    async downloadDocument(key: string) {
+    async downloadDocument(key: string, bucket: string) {
         return new Promise((resolve, reject) => {
-            fs.readFile(this.fileBaseDirectory + key + '.txt', (err: NodeJS.ErrnoException, data: Buffer) => {
+            fs.readFile(this.fileBaseDirectory + bucket + '_' + key + '.txt', (err: NodeJS.ErrnoException, data: Buffer) => {
                 if(err) {
                     reject(err);
                 }
@@ -62,11 +70,12 @@ export class LocalStorageDocClient implements RemoteDocClient {
      * delete document from filesystem.
      *
      * @param {string} key
+     * @param {string} bucket
      * @returns {Promise<any>}
      */
-    async deleteDocument(key: string) {
+    async deleteDocument(key: string, bucket: string) {
         return new Promise((resolve, reject) => {
-            fs.unlink(this.fileBaseDirectory + key + '.txt', (err: NodeJS.ErrnoException) => {
+            fs.unlink(this.fileBaseDirectory + bucket + '_' + key + '.txt', (err: NodeJS.ErrnoException) => {
                 if (err) {
                     reject(err);
                 }

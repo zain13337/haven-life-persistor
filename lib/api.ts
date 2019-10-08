@@ -10,7 +10,7 @@
  *
  */
 
-import { PersistorTransaction } from './types';
+import { PersistorTransaction, RemoteDocConnectionOptions } from './types';
 
 
 module.exports = function (PersistObjectTemplate, baseClassForPersist) {
@@ -1138,6 +1138,17 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
     };
 
     /**
+     * hook to pass in remote doc configurations and place them onto the base object template.
+     *
+     * @param {remoteDocConnectionOptions} options - enable our remote
+     * object storage functionality. if enabled, config
+     */
+    PersistObjectTemplate.setRemoteDocConnection = function (options: RemoteDocConnectionOptions): void {
+        this.bucketName = options.bucketName;
+        this.environment = options.environment;
+    };
+
+    /**
      * retrieve a PLain Old Javascript Object given a query
      * @param {SuperType} template - template to load
      * @param {json|function} query - can pass either mongo style queries or callbacks to add knex calls..
@@ -1228,6 +1239,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
         var knex = require('knex');
         var connection = knex(config);
         this.setDB(connection, this.DB_Knex, config.client);
+        this.setRemoteDocConnection(config);
         this.setSchema(schema);
         this.performInjections(); // Normally done by getTemplates
         return connection;

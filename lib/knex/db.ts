@@ -1241,7 +1241,7 @@ module.exports = function (PersistObjectTemplate) {
                             let remoteDocService = RemoteDocService.new('local');
 
                             return Promise.all(persistorTransaction.remoteObjects.map(async (key: string) => {
-                                await remoteDocService.deleteDocument(key);
+                                await remoteDocService.deleteDocument(key, this.bucketName);
                             }));
                         }
                     }).then(() => {
