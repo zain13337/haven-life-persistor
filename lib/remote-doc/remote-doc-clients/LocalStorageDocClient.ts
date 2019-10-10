@@ -21,6 +21,7 @@ export class LocalStorageDocClient implements RemoteDocClient {
         }
 
         this.fileBaseDirectory = remoteDocStorageDir;
+        // this.fileBaseDirectory = '/Users/mm42359/Documents/';
         return this;
     }
 

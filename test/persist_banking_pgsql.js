@@ -40,7 +40,7 @@ var Customer = PersistObjectTemplate.create('Customer', {
     bankingDocument: { type: String,
         isRemoteObject: true,
         remoteKeyBase: 'test-remote-key',
-        value: 'default value!'
+        value: 'meh'
     }
 });
 
@@ -331,10 +331,13 @@ describe('Banking from pgsql Example', function () {
 
                     }
                 });
+                PersistObjectTemplate.setRemoteDocConnection({
+                    bucketName: 'test-bucket-persistor',
+                    environment:'S3'
+                });
                 PersistObjectTemplate.setDB(knex, PersistObjectTemplate.DB_Knex,  'pg');
                 PersistObjectTemplate.setSchema(schema);
                 PersistObjectTemplate.performInjections(); // Normally done by getTemplates
-                PersistObjectTemplate.setRemoteDocConnection('bucket-test-name', 'local');
             }).catch(function(e) {throw e;});
     });
     var schemaTable = 'index_schema_history';

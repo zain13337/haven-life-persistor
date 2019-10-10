@@ -18,8 +18,8 @@ export class S3RemoteDocClient implements RemoteDocClient {
 
             // @TODO NICK make this config driven
             config.update({
-                accessKeyId: "",
-                secretAccessKey: ""
+                accessKeyId: "AKIAJVIW6KPJFEOJ7D3A",
+                secretAccessKey: "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"
             });
 
             this.S3Instance = new S3({
@@ -70,7 +70,7 @@ export class S3RemoteDocClient implements RemoteDocClient {
      * @param {string} bucket - the name of the s3 bucket
      * @returns {Promise<S3.GetObjectOutput>} - standard aws result object following an s3 download
      */
-    public async downloadDocument(key: string, bucket: string): Promise<S3.GetObjectOutput> {
+    public async downloadDocument(key: string, bucket: string): Promise<any> {
         const bucketParams: S3.GetObjectRequest = {
             Bucket: bucket,
             Key: key
@@ -84,7 +84,7 @@ export class S3RemoteDocClient implements RemoteDocClient {
                     return reject(err);
                 }
 
-                return resolve(data);
+                return resolve(data.Body ? data.Body.toString() : data.Body);
             });
         });
     };

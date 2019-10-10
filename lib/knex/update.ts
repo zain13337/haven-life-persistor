@@ -1,6 +1,7 @@
-import { RemoteDocService } from "../remote-doc/RemoteDocService";
+import { RemoteDocService } from '../remote-doc/RemoteDocService';
+import { PersistorTransaction } from '../types/PersistorTransaction';
 
-let remoteDocService = RemoteDocService.new('local');
+let remoteDocService = RemoteDocService.new('S3');
 
 module.exports = function (PersistObjectTemplate) {
 
@@ -21,7 +22,7 @@ module.exports = function (PersistObjectTemplate) {
      * @param {object} logger object template logger
      * @returns {*}
      */
-    PersistObjectTemplate.persistSaveKnex = async function(obj, txn, logger): Promise<any> {
+    PersistObjectTemplate.persistSaveKnex = async function(obj, txn: PersistorTransaction, logger): Promise<any> {
 
         (logger || this.logger).debug({component: 'persistor', module: 'db.persistSaveKnex', activity: 'pre', data:{template: obj.__template__.__name__, id: obj.__id__, _id: obj._id}});
         this.checkObject(obj);
@@ -153,11 +154,18 @@ module.exports = function (PersistObjectTemplate) {
                     const documentBody = remoteObject;
 
                     // unique identifier to find the object we're saving in the remote store
-                    const objectKey = `${defineProperty.remoteKeyBase}-${uniqueEnoughIdentifier}`;
+                    const objectKey = defineProperty.__remoteObjectKey__ || `${defineProperty.remoteKeyBase}-${uniqueEnoughIdentifier}`;
 
+                    // const objectKey = `${defineProperty.remoteKeyBase}`;
                     const bucket = this.bucketName;
 
                     try {
+                        // if(txn.remoteObjects) {
+                        //     txn.remoteObjects.push(objectKey);
+                        // } else {
+                        //     txn.remoteObjects = [objectKey];
+                        // }
+
                         // grab the document from remote store
                         await remoteDocService.uploadDocument(documentBody, objectKey, bucket);
 
@@ -165,8 +173,8 @@ module.exports = function (PersistObjectTemplate) {
                         // contents of the property.
                         pojo[prop] = objectKey;
 
-                        // for reference from spike/feature/s3-functionality-integration-component
-                        // remoteDocumentQueue.push(this.uploadToS3.bind(this, pojo, prop, buffer, defineProperty, S3Type, S3Uploader, logger, log));
+                        defineProperty.__remoteObjectKey__ = objectKey;
+
                         log(defineProperty, pojo, prop);
                     } catch (e) {
                         (logger || this.logger).error({

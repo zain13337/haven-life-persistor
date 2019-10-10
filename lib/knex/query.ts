@@ -1,6 +1,6 @@
 import { RemoteDocService } from '../remote-doc/RemoteDocService';
 
-let remoteDocService = RemoteDocService.new('local');
+let remoteDocService = RemoteDocService.new('S3');
 
 module.exports = function (PersistObjectTemplate) {
 

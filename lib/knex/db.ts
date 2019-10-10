@@ -1238,9 +1238,9 @@ module.exports = function (PersistObjectTemplate) {
                             }`);
 
                             // @TODO NICK make remote doc client config based
-                            let remoteDocService = RemoteDocService.new('local');
+                            let remoteDocService = RemoteDocService.new('S3');
 
-                            return Promise.all(persistorTransaction.remoteObjects.map(async (key: string) => {
+                            await Promise.all(persistorTransaction.remoteObjects.map(async (key: string) => {
                                 await remoteDocService.deleteDocument(key, this.bucketName);
                             }));
                         }
