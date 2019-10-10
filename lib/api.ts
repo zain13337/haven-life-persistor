@@ -756,8 +756,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 return this.__template__.countFromPersistWithQuery(
                     {
                         _id: (dbType == persistObjectTemplate.DB_Mongo) ? persistObjectTemplate.ObjectID(this._id.toString()) : this._id,
-                        __version__: this.__version__,
-                        objectId: (dbType == persistObjectTemplate.DB_Mongo) ? persistObjectTemplate.ObjectID(this._id.toString()) : this._id
+                        __version__: this.__version__
                     }).then(function (count) {
                         return !count
                     }.bind(this))
