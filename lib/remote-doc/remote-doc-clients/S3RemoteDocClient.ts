@@ -13,13 +13,12 @@ export class S3RemoteDocClient implements RemoteDocClient {
     private async getConnection(bucket: string): Promise<S3> {
 
         if (!this.hasCredentials() || (this.hasCredentials() && !this.isCredentialsValid())) {
-            // @TODO NICK make this config driven
             const endPoint = 'https://s3.amazonaws.com/' + bucket;
 
             // @TODO NICK make this config driven
             config.update({
-                accessKeyId: "AKIAJVIW6KPJFEOJ7D3A",
-                secretAccessKey: "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"
+                accessKeyId: "",
+                secretAccessKey: ""
             });
 
             this.S3Instance = new S3({
@@ -55,9 +54,9 @@ export class S3RemoteDocClient implements RemoteDocClient {
         return new Promise((resolve, reject) => {
             (<AWS.S3>s3Conn).putObject(bucketParams, async (err: AWSError, data: S3.PutObjectOutput) => {
                 if (err) {
-                    return reject(err.message);
+                    reject(err.message);
                 } else {
-                    return resolve(data);
+                    resolve(data);
                 }
             });
         });
@@ -81,10 +80,10 @@ export class S3RemoteDocClient implements RemoteDocClient {
         return new Promise((resolve, reject) => {
             s3Conn.getObject(bucketParams, (err: Error, data: S3.GetObjectOutput) => {
                 if (err) {
-                    return reject(err);
+                    reject(err);
                 }
 
-                return resolve(data.Body ? data.Body.toString() : data.Body);
+                resolve(data.Body ? data.Body.toString() : data.Body);
             });
         });
     };

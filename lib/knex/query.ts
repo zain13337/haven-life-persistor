@@ -1,7 +1,5 @@
 import { RemoteDocService } from '../remote-doc/RemoteDocService';
 
-let remoteDocService = RemoteDocService.new('S3');
-
 module.exports = function (PersistObjectTemplate) {
 
     var Promise = require('bluebird');
@@ -172,6 +170,7 @@ module.exports = function (PersistObjectTemplate) {
     PersistObjectTemplate.getTemplateFromKnexPOJO =
         async function (pojo, template, requests, idMap, cascade, isTransient, defineProperty, establishedObj, specificProperties, prefix, joins, isRefresh, logger, enableChangeTracking, projection, orgCascade)
         {
+            let remoteDocService = null;
             var self = this;
             prefix = prefix || '';
 
@@ -319,6 +318,7 @@ module.exports = function (PersistObjectTemplate) {
                     }
                 }
                 else if (isRemoteDoc) {
+                    remoteDocService = remoteDocService || RemoteDocService.new(this.environment);
                     // if we have a remote object type, fetch it and place it in the template
                     if (value && typeof value === 'string') {
                         try {

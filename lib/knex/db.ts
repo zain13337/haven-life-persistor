@@ -1227,36 +1227,38 @@ module.exports = function (PersistObjectTemplate) {
                 const deadlock = err.toString().match(/deadlock detected$/i);
                 persistorTransaction.innerError = err;
                 innerError = deadlock ? new Error('Update Conflict') : err;
-                return knexTransaction.rollback(innerError)
-                    .then( async () => {
-                        if (persistorTransaction.remoteObjects && persistorTransaction.remoteObjects.length > 0) {
-                            (logger || this.logger).info({
+
+                if (persistorTransaction.remoteObjects && persistorTransaction.remoteObjects.size > 0) {
+                    (logger || this.logger).info({
+                            component: 'persistor',
+                            module: 'api',
+                            activity: 'end'
+                        },
+                        `Rolling back transaction of remote keys`);
+
+                    let remoteDocService = RemoteDocService.new(this.environment);
+
+                    persistorTransaction.remoteObjects.forEach(async (key) => {
+                        try {
+                            await remoteDocService.deleteDocument(key, this.bucketName);
+                        } catch (e) {
+                            (logger || this.logger).error({
                                     component: 'persistor',
                                     module: 'api',
-                                    activity: 'end'},
-                                `Rolling back transaction of remote keys: ${persistorTransaction.remoteObjects.join(', ')
-                            }`);
-
-                            // @TODO NICK make remote doc client config based
-                            let remoteDocService = RemoteDocService.new('S3');
-
-                            await Promise.all(persistorTransaction.remoteObjects.map(async (key: string) => {
-                                await remoteDocService.deleteDocument(key, this.bucketName);
-                            }));
+                                    activity: 'end',
+                                    error: e},
+                                'unable to rollback remote document with key:' + key + ' and bucket: ', this.bucketName);
                         }
-                    }).then(() => {
-                        (logger || this.logger).debug({
-                            component: 'persistor',
-                            module: 'api',
-                            activity: 'end'},
-                            'transaction rolled back ' + innerError.message + (deadlock ? ' from deadlock' : ''));
-                    }).catch((e) => {
-                        (logger || this.logger).error({
-                            component: 'persistor',
-                            module: 'api',
-                            activity: 'end'},
-                        'transaction rollback failed with error', e);
                     });
+                }
+
+                return knexTransaction.rollback(innerError).then(() => {
+                    (logger || this.logger).debug({
+                        component: 'persistor',
+                        module: 'api',
+                        activity: 'end'},
+                        'transaction rolled back ' + innerError.message + (deadlock ? ' from deadlock' : ''));
+                });
             }
 
             function generateChanges(obj, action) {

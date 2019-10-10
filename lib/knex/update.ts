@@ -1,8 +1,6 @@
 import { RemoteDocService } from '../remote-doc/RemoteDocService';
 import { PersistorTransaction } from '../types/PersistorTransaction';
 
-let remoteDocService = RemoteDocService.new('S3');
-
 module.exports = function (PersistObjectTemplate) {
 
     var Promise = require('bluebird');
@@ -26,6 +24,8 @@ module.exports = function (PersistObjectTemplate) {
 
         (logger || this.logger).debug({component: 'persistor', module: 'db.persistSaveKnex', activity: 'pre', data:{template: obj.__template__.__name__, id: obj.__id__, _id: obj._id}});
         this.checkObject(obj);
+
+        let remoteDocService = null;
 
         var template = obj.__template__;
         var schema = template.__schema__;
@@ -150,6 +150,7 @@ module.exports = function (PersistObjectTemplate) {
                 const remoteObject: string = obj[prop];
 
                 if (remoteObject && defineProperty.remoteKeyBase) {
+                    remoteDocService = remoteDocService || RemoteDocService.new(this.environment);
                     // the contents of the object we want to save in the remote store
                     const documentBody = remoteObject;
 
@@ -160,10 +161,12 @@ module.exports = function (PersistObjectTemplate) {
                     const bucket = this.bucketName;
 
                     try {
-                        // if(txn.remoteObjects) {
-                        //     txn.remoteObjects.push(objectKey);
-                        // } else {
-                        //     txn.remoteObjects = [objectKey];
+                        // if(txn) {
+                        //     if(txn.remoteObjects) {
+                        //         txn.remoteObjects.add(objectKey);
+                        //     } else {
+                        //         txn.remoteObjects = new Set(objectKey);
+                        //     }
                         // }
 
                         // grab the document from remote store
@@ -172,6 +175,7 @@ module.exports = function (PersistObjectTemplate) {
                         // only place a reference to the remote object in the database itself - not the actual
                         // contents of the property.
                         pojo[prop] = objectKey;
+
 
                         defineProperty.__remoteObjectKey__ = objectKey;
 
@@ -183,7 +187,8 @@ module.exports = function (PersistObjectTemplate) {
                             activity: 'persistSaveKnex',
                             data: {
                                 template: obj.__template__.__name__,
-                                errorMessage: e
+                                errorMessage: e,
+                                message: 'there was a problem uploading the document'
                             }
                         });
                     }
