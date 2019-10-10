@@ -523,7 +523,6 @@ describe('persistor transaction checks', function () {
 
         async function realTest() {
             await Employee.persistorDeleteByQuery({name: 'Ravi'});
-            
             return Employee.persistorFetchByQuery({name: 'Ravi'}).then(function(employees) {
                 expect(employees.length).to.equal(0);
             })
