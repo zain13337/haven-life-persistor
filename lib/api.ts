@@ -946,6 +946,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
             configurable: true
         })
 
+        
         Object.defineProperty(template.prototype, 'objectTemplateName', {
             get: function () {
                 return this._template;
