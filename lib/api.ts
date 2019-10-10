@@ -756,7 +756,8 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 return this.__template__.countFromPersistWithQuery(
                     {
                         _id: (dbType == persistObjectTemplate.DB_Mongo) ? persistObjectTemplate.ObjectID(this._id.toString()) : this._id,
-                        __version__: this.__version__
+                        __version__: this.__version__,
+                        objectId: (dbType == persistObjectTemplate.DB_Mongo) ? persistObjectTemplate.ObjectID(this._id.toString()) : this._id
                     }).then(function (count) {
                         return !count
                     }.bind(this))
@@ -937,6 +938,22 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
             let persistObjectTemplate = this.__objectTemplate__ || self;
             return (this._id = this._id || persistObjectTemplate.createPrimaryKey(this));
         };
+
+        Object.defineProperty(template.prototype, 'objectId', {
+            get: function () {
+                return this.generateId();
+            },
+            enumerable: true,
+            configurable: true
+        })
+
+        Object.defineProperty(template.prototype, 'objectTemplateName', {
+            get: function () {
+                return this._template;
+            },
+            enumerable: true,
+            configurable: true
+        })
 
         //persistorDelete will only support new API calls.
         template.prototype.persistorDelete = template.prototype.deleteV2 = async function (options) {
