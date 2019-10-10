@@ -241,7 +241,7 @@ function clearCollection(collectionName) {
     });
 }
 
-describe('Banking Example', function () {
+describe('Banking Example JS', function () {
     after('close db connection', function() {
         return db.close();
     });
@@ -689,7 +689,7 @@ describe('Banking Example', function () {
         return PersistObjectTemplate.getTemplateFromMongoPOJO(pojo, withoutType, null, null, {});
     });
 
-    it('can delete', function (done) {
+    it('can delete persist_banking', function (done) {
         Customer.getFromPersistWithId(sam._id,
             {roles: {fetch: {account: {fetch: {roles: {fetch: {customer: {fetch: true}}}}}}}}).then (function (customer) {
                 var promises = [];
