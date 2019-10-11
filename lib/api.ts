@@ -167,10 +167,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
             const time = getTime();
             let getQuery = (dbType == PersistObjectTemplate.DB_Mongo ?
                 PersistObjectTemplate.getFromPersistWithMongoId(template, id, cascade, isTransient, idMap, logger) :
-                PersistObjectTemplate.getFromPersistWithKnexId(template, id, cascade, isTransient, idMap, isRefresh, logger))
-                .then(function (res) {
-                    return res;
-                }.bind(this));
+                PersistObjectTemplate.getFromPersistWithKnexId(template, id, cascade, isTransient, idMap, isRefresh, logger));
 
             const name = 'getFromPersistWithId';
             return getQuery
@@ -209,10 +206,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
 
             let getQuery = (dbType == PersistObjectTemplate.DB_Mongo ?
                 PersistObjectTemplate.getFromPersistWithMongoQuery(template, query, cascade, start, limit, isTransient, idMap, options, logger) :
-                PersistObjectTemplate.getFromPersistWithKnexQuery(null, template, query, cascade, start, limit, isTransient, idMap, options, undefined, undefined, logger))
-                .then(function (res) {
-                    return res;
-                }.bind(this));
+                PersistObjectTemplate.getFromPersistWithKnexQuery(null, template, query, cascade, start, limit, isTransient, idMap, options, undefined, undefined, logger));
 
 
             const name = 'getFromPersistWithQuery';
@@ -384,10 +378,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
             var dbType = PersistObjectTemplate.getDB(PersistObjectTemplate.getDBAlias(template.__collection__)).type;
             let countQuery = (dbType == PersistObjectTemplate.DB_Mongo ?
                 PersistObjectTemplate.countFromMongoQuery(template, query, logger) :
-                PersistObjectTemplate.countFromKnexQuery(template, query, logger))
-                .then(function (res) {
-                    return res;
-                }.bind(this));
+                PersistObjectTemplate.countFromKnexQuery(template, query, logger));
 
             const name = 'persistorCountByQuery';
             return countQuery
@@ -420,10 +411,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
             var dbType = PersistObjectTemplate.getDB(PersistObjectTemplate.getDBAlias(template.__collection__)).type;
             let deleteQuery = (dbType == PersistObjectTemplate.DB_Mongo ?
                 PersistObjectTemplate.deleteFromPersistWithMongoId(template, id, logger) :
-                PersistObjectTemplate.deleteFromKnexId(template, id, txn, logger))
-                .then(function (res) {
-                    return res;
-                }.bind(this));
+                PersistObjectTemplate.deleteFromKnexId(template, id, txn, logger));
 
             const name = 'deleteFromPersistWithId';
             return deleteQuery
@@ -455,10 +443,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
             var dbType = PersistObjectTemplate.getDB(PersistObjectTemplate.getDBAlias(template.__collection__)).type;
             let countQuery = (dbType == PersistObjectTemplate.DB_Mongo ?
                 PersistObjectTemplate.countFromMongoQuery(template, query, logger) :
-                PersistObjectTemplate.countFromKnexQuery(template, query, logger))
-                .then(function (res) {
-                    return res;
-                }.bind(this));
+                PersistObjectTemplate.countFromKnexQuery(template, query, logger));
 
             const name = 'countFromPersistWithQuery';
             return countQuery
