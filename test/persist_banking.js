@@ -660,8 +660,9 @@ describe('Banking Example JS', function () {
         writing = true;
         var testDelete = new Customer('Ashling', '', 'testDelete');
         return testDelete.persistSave()
-            .then(Customer.countFromPersistWithQuery.bind(this))
-            .then(function(count) {
+            .then(function() {
+                return Customer.countFromPersistWithQuery();
+            }).then(function(count) {
                 expect(count).to.equal(5);
             }).then(function() {
                 return Customer.deleteFromPersistWithQuery({lastName: {$eq: 'testDelete'}})
