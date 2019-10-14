@@ -17,8 +17,8 @@ export class S3RemoteDocClient implements RemoteDocClient {
 
             // @TODO NICK make this config driven
             config.update({
-                accessKeyId: "",
-                secretAccessKey: ""
+                accessKeyId: "AKIASMGUUZMGZMNDR3FK",
+                secretAccessKey: "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"
             });
 
             this.S3Instance = new S3({
@@ -42,7 +42,7 @@ export class S3RemoteDocClient implements RemoteDocClient {
      * @param {string} bucket - the name of the s3 bucket
      * @returns {Promise<S3.PutObjectOutput>} - standard aws result object following an s3 upload
      */
-    public async uploadDocument(s3ObjectToBeUploaded: string, key: string, bucket: string): Promise<S3.PutObjectOutput> {
+    public async uploadDocument(s3ObjectToBeUploaded: string, key: string, bucket: string) {
         const bucketParams: S3.PutObjectRequest = {
             Bucket: bucket,
             Key: key,
@@ -56,7 +56,7 @@ export class S3RemoteDocClient implements RemoteDocClient {
                 if (err) {
                     reject(err.message);
                 } else {
-                    resolve(data);
+                    resolve();
                 }
             });
         });
@@ -81,9 +81,9 @@ export class S3RemoteDocClient implements RemoteDocClient {
             s3Conn.getObject(bucketParams, (err: Error, data: S3.GetObjectOutput) => {
                 if (err) {
                     reject(err);
+                } else {
+                    resolve(data && data.Body ? data.Body.toString() : data.Body);
                 }
-
-                resolve(data.Body ? data.Body.toString() : data.Body);
             });
         });
     };
@@ -108,10 +108,10 @@ export class S3RemoteDocClient implements RemoteDocClient {
         return new Promise((resolve, reject) => {
             s3Conn.deleteObject(params, (err: Error, data: S3.DeleteObjectOutput) => {
                 if (err) {
-                    return reject(err);
+                    reject(err.message);
+                } else {
+                    resolve();
                 }
-
-                return resolve(data);
             });
         });
     };

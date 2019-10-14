@@ -25,16 +25,6 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
         return process.hrtime();
     }
 
-    function getStats(startTime, templateName: string, queryType: string, error = false) {
-        return statsDHelper.computeTimingAndSend(
-            startTime,
-            `persistor.${queryType}`,
-            {
-                error: error,
-                templateName: templateName,
-            });
-    }
-
     /**
      * PUBLIC INTERFACE FOR OBJECTS
      */
@@ -177,15 +167,9 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
 
             const name = 'getFromPersistWithId';
             return getQuery
-                .then(result => {
-                    getStats(time, template.__name__, name);
-                    return result;
-                })
                 .catch(e => {
-                    getStats(time, template.__name__, name, true);
                     return logExceptionAndRethrow(e, logger || PersistObjectTemplate.logger, template.__name__, id, name)
                 });
-
         };
 
         /**
@@ -220,12 +204,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
 
             const name = 'getFromPersistWithQuery';
             return getQuery
-                .then(result => {
-                    getStats(time, template.__name__, name);
-                    return result;
-                })
                 .catch(e => {
-                    getStats(time, template.__name__, name, true);
                     return logExceptionAndRethrow(e, logger || PersistObjectTemplate.logger, template.__name__, query, name)
                 });
         };
@@ -248,16 +227,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 PersistObjectTemplate.deleteFromKnexQuery(template, query, txn, logger);
 
             const name = 'deleteFromQuery';
-            return getQuery
-                .then(result => {
-                    getStats(time, template.__name__, name);
-                    return result;
-                })
-                // @TODO: need to handle errors with log
-
-                .catch(e => {
-                    getStats(time, template.__name__, name, true);
-                });
+            return getQuery;
         };
 
         /**
@@ -284,15 +254,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 persistObjectTemplate.getFromPersistWithKnexId(template, id, options.fetch, options.transient, null, null, options.logger, options.enableChangeTracking, options.projection));
 
             const name = 'persistorFetchById';
-            return fetchQuery
-                .then(result => {
-                    getStats(time, template.__name__, name);
-                    return result;
-                })
-                .catch(e => {
-                    getStats(time, template.__name__, name, true);
-                    return logExceptionAndRethrow(e, options.logger || PersistObjectTemplate.logger, template.__name__, id, name)
-                });
+            return fetchQuery;
         };
 
         /**
@@ -313,16 +275,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 PersistObjectTemplate.deleteFromKnexByQuery(template, query, options.transaction, options.logger);
 
             const name = 'persistorDeleteByQuery';
-            return deleteQuery
-                .then(result => {
-                    getStats(time, template.__name__, name);
-                    return result;
-                })
-                // @TODO: need to handle errors with log
-                .catch(e => {
-                    getStats(time, template.__name__, name, true);
-                    return logExceptionAndRethrow(e, options.logger || PersistObjectTemplate.logger, template.__name__, query, name);
-                });
+            return deleteQuery;
         };
 
         /**
@@ -355,15 +308,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                     undefined, undefined, logger, options.enableChangeTracking, options.projection));
 
             const name = 'persistorFetchByQuery';
-            return fetchQuery
-                .then(result => {
-                    getStats(time, template.__name__, name);
-                    return result;
-                })
-                .catch(e => {
-                    getStats(time, template.__name__, name, true);
-                    return logExceptionAndRethrow(e, options.logger || PersistObjectTemplate.logger, template.__name__, query, name)
-                });
+            return fetchQuery;
         };
         /**
          * Return count of objects of this class given a json query
@@ -393,15 +338,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 }.bind(this));
 
             const name = 'persistorCountByQuery';
-            return countQuery
-                .then(result => {
-                    getStats(time, template.__name__, name);
-                    return result;
-                })
-                .catch(e => {
-                    getStats(time, template.__name__, name, true);
-                    return logExceptionAndRethrow(e, options.logger || PersistObjectTemplate.logger, template.__name__, query, { activity: 'persistorCountByQuery' })
-                });
+            return countQuery;
         };
 
         /**
@@ -429,15 +366,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 }.bind(this));
 
             const name = 'deleteFromPersistWithId';
-            return deleteQuery
-                .then(result => {
-                    getStats(time, template.__name__, name);
-                    return result;
-                })
-                .catch(e => {
-                    getStats(time, template.__name__, name, true);
-                    return logExceptionAndRethrow(e, logger || PersistObjectTemplate.logger, template.__name__, id, { activity: 'deleteFromPersistWithId' })
-                });
+            return deleteQuery;
         };
 
         /**
@@ -464,15 +393,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 }.bind(this));
 
             const name = 'countFromPersistWithQuery';
-            return countQuery
-                .then(result => {
-                    getStats(time, template.__name__, name);
-                    return result;
-                })
-                .catch(e => {
-                    getStats(time, template.__name__, name, true);
-                    return logExceptionAndRethrow(e, logger || PersistObjectTemplate.logger, template.__name__, query, name)
-                });
+            return countQuery;
         };
 
         /**
@@ -646,15 +567,6 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                         });
                 const name = 'persistSave';
                 return query
-                    .then(result => {
-                        getStats(time, template.__name__, name);
-                        return result;
-                    })
-                    // @TODO: need to handle errors with log
-                    .catch(e => {
-                        getStats(time, template.__name__, name, true);
-                        throw e;
-                    });
             };
 
         template.prototype.persistTouch = // Legacy -- just use persistorSave
@@ -671,16 +583,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                     : persistObjectTemplate.persistTouchKnex(this, txn, logger);
 
                 const name = 'persistTouch';
-                return query
-                    .then(result => {
-                        getStats(time, template.__name__, name);
-                        return result;
-                    })
-                    // @TODO: need to handle errors with log
-                    .catch(e => {
-                        getStats(time, template.__name__, name, true);
-                        throw e;
-                    });
+                return query;
             };
 
         //persistDelete is modified to support both legacy and V2, options this is passed for V2 as the first parameter.
@@ -706,16 +609,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 }
 
                 const name = 'persistDelete';
-                return query
-                    .then(result => {
-                        getStats(time, template.__name__, name);
-                        return result;
-                    })
-                    // @TODO: need to handle errors with log
-                    .catch(e => {
-                        getStats(time, template.__name__, name, true);
-                        throw e;
-                    });
+                return query;
 
             };
 
@@ -738,16 +632,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
             var query = Promise.resolve(persistObjectTemplate.setDirty(this, txn || persistObjectTemplate.currentTransaction, true, false, logger));
 
             const name = 'cascadeSave';
-            return query
-                .then(result => {
-                    getStats(time, template.__name__, name);
-                    return result;
-                })
-                // @TODO: need to handle errors with log
-                .catch(e => {
-                    getStats(time, template.__name__, name, true);
-                    throw e;
-                });
+            return query;
         };
 
         template.prototype.isStale = // Legacy
@@ -762,16 +647,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                         __version__: this.__version__
                     }).then(function (count) {
                         return !count
-                    }.bind(this))
-                    .then(result => {
-                        getStats(time, template.__name__, name);
-                        return result;
-                    })
-                    // @TODO: need to handle errors with log
-                    .catch(e => {
-                        getStats(time, template.__name__, name, true);
-                        throw e;
-                    });
+                    }.bind(this));
             };
 
         // Legacy
@@ -799,15 +675,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 persistObjectTemplate.getTemplateFromKnexPOJO(this, this.__template__, null, idMap, cascadeTop, isTransient, null, this, properties, undefined, undefined, undefined, logger);
 
             var name = 'fetchProperty';
-            return promise.then(result => {
-                getStats(time, template.__name__, name);
-                return result;
-            })
-                // @TODO: need to handle errors with log
-                .catch(e => {
-                    getStats(time, template.__name__, name, true);
-                    throw e;
-                });
+            return promise;
 
         };
 
@@ -832,15 +700,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 persistObjectTemplate.getTemplateFromMongoPOJO(this, this.__template__, null, null, idMap, cascade, this, properties, isTransient, logger) :
                 persistObjectTemplate.getTemplateFromKnexPOJO(this, this.__template__, null, idMap, cascade, isTransient, null, this, properties, undefined, undefined, undefined, logger);
             var name = 'fetch';
-            return promise.then(result => {
-                getStats(time, template.__name__, name);
-                return result;
-            })
-                // @TODO: need to handle errors with log
-                .catch(e => {
-                    getStats(time, template.__name__, name, true);
-                    throw e;
-                });
+            return promise;
         };
 
         template.prototype.persistorFetchReferences = template.prototype.fetchReferences = async function (options) {
@@ -870,15 +730,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                     properties, undefined, undefined, undefined, logger));
 
             var name = 'persistorFetchReferences';
-            return promise
-                .then(result => {
-                    getStats(time, template.__name__, name);
-                    return result;
-                })// @TODO: need to handle errors with log
-                .catch(e => {
-                    getStats(time, template.__name__, name, true);
-                    throw e;
-                });
+            return promise;
         };
 
         template.prototype.persistorRefresh = template.prototype.refresh = async function (logger) {
@@ -919,17 +771,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
             }
 
             const name = 'persistorSave';
-            return promise
-                .then(result => {
-                    getStats(time, template.__name__, name);
-                    return result;
-                })
-                // @TODO: need to handle errors with log
-
-                .catch(e => {
-                    getStats(time, template.__name__, name, true);
-                    throw e;
-                });
+            return promise;
         };
 
         /**
@@ -965,16 +807,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
             }
 
             const name = 'persistorDelete';
-            return promise.then(result => {
-                getStats(time, template.__name__, name);
-                return result;
-            })
-                // @TODO: need to handle errors with log
-
-                .catch(e => {
-                    getStats(time, template.__name__, name, true);
-                    throw e;
-                });
+            return promise;
         }
 
         // Add persistors to foreign key references
@@ -1112,16 +945,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
                 } else {
                     return true;
                 }
-            }.bind(this))
-            .then(result => {
-                getStats(time, 'PersistObjectTemplate', 'saveAll');
-                return result;
-            })
-            // @TODO: need to handle errors with log
-            .catch(e => {
-                getStats(time, 'PersistObjectTemplate', 'saveAll', true);
-                throw e;
-            });
+            }.bind(this));
     }
 
     /**
@@ -1218,15 +1042,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
         }
 
         const name = 'commit';
-        return promise.then(result => {
-            getStats(time, 'PersistObjectTemplate', name);
-            return result;
-        })
-            // @TODO: need to handle errors with log
-            .catch(e => {
-                getStats(time, 'PersistObjectTemplate', name, true);
-                throw e;
-            });
+        return promise;
     };
 
     /**

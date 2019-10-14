@@ -315,6 +315,8 @@ function clearCollection(template) {
 }
 
 describe('Banking from pgsql Example', function () {
+    this.timeout(10000);
+
     var knex;
     it ('opens the database Postgres', function () {
         return Promise.resolve()
@@ -331,7 +333,7 @@ describe('Banking from pgsql Example', function () {
                 });
                 PersistObjectTemplate.setRemoteDocConnection({
                     bucketName: 'test-bucket-persistor',
-                    environment:'S3'
+                    environment: 'S3'
                 });
                 PersistObjectTemplate.setDB(knex, PersistObjectTemplate.DB_Knex,  'pg');
                 PersistObjectTemplate.setSchema(schema);
@@ -395,7 +397,7 @@ describe('Banking from pgsql Example', function () {
     //     });
     // });
 
-    it ('can create the data', function () {
+        it ('can create the data', function () {
         // Setup customers and addresses
         sam = new Customer('Sam', 'M', 'Elsamman');
         karen = new Customer('Karen', 'M', 'Burke');
@@ -425,7 +427,7 @@ describe('Banking from pgsql Example', function () {
 
         // Setup accounts
         samsAccount = new Account(123412341234123, ['Sam Elsamman'], sam, sam.primaryAddresses[0]);
-        jointAccount = new Account(.123412341234123, ['Sam Elsamman', 'Karen Burke', 'Ashling Burke'], sam, karen.primaryAddresses[0]);
+        jointAccount = new Account(0.123412341234123, ['Sam Elsamman', 'Karen Burke', 'Ashling Burke'], sam, karen.primaryAddresses[0]);
         jointAccount.addCustomer(karen, 'joint');
         jointAccount.addCustomer(ashling, 'joint');
 

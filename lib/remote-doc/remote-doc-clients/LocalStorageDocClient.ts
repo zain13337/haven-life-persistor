@@ -21,7 +21,6 @@ export class LocalStorageDocClient implements RemoteDocClient {
         }
 
         this.fileBaseDirectory = remoteDocStorageDir;
-        // this.fileBaseDirectory = '/Users/mm42359/Documents/';
         return this;
     }
 
@@ -33,7 +32,7 @@ export class LocalStorageDocClient implements RemoteDocClient {
      * @param {string} bucket
      * @returns {Promise<any>}
      */
-    async uploadDocument(obj: string, key: string, bucket: string) {
+    public async uploadDocument(obj: string, key: string, bucket: string) {
         return new Promise((resolve, reject) => {
             fs.writeFile(this.fileBaseDirectory + bucket + '_' +  key + '.txt', obj, (err: NodeJS.ErrnoException) => {
                 if(err) {
@@ -51,7 +50,7 @@ export class LocalStorageDocClient implements RemoteDocClient {
      * @param {string} bucket
      * @returns {Promise<any>}
      */
-    async downloadDocument(key: string, bucket: string) {
+    public async downloadDocument(key: string, bucket: string) {
         return new Promise((resolve, reject) => {
             fs.readFile(this.fileBaseDirectory + bucket + '_' + key + '.txt', (err: NodeJS.ErrnoException, data: Buffer) => {
                 if(err) {
@@ -74,7 +73,7 @@ export class LocalStorageDocClient implements RemoteDocClient {
      * @param {string} bucket
      * @returns {Promise<any>}
      */
-    async deleteDocument(key: string, bucket: string) {
+    public async deleteDocument(key: string, bucket: string) {
         return new Promise((resolve, reject) => {
             fs.unlink(this.fileBaseDirectory + bucket + '_' + key + '.txt', (err: NodeJS.ErrnoException) => {
                 if (err) {
