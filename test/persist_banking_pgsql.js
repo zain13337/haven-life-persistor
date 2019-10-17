@@ -397,7 +397,7 @@ describe('Banking from pgsql Example', function () {
     //     });
     // });
 
-        it ('can create the data', function () {
+    it ('can create the data', function () {
         // Setup customers and addresses
         sam = new Customer('Sam', 'M', 'Elsamman');
         karen = new Customer('Karen', 'M', 'Burke');
