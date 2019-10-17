@@ -1223,7 +1223,7 @@ module.exports = function (PersistObjectTemplate) {
                 }.bind(this))
             }
 
-            function rollback (err) {
+            async function rollback (err) {
                 const deadlock = err.toString().match(/deadlock detected$/i);
                 persistorTransaction.innerError = err;
                 innerError = deadlock ? new Error('Update Conflict') : err;

@@ -162,13 +162,13 @@ module.exports = function (PersistObjectTemplate) {
                     const bucket = this.bucketName;
 
                     try {
-                        // if(txn) {
-                        //     if(txn.remoteObjects) {
-                        //         txn.remoteObjects.add(objectKey);
-                        //     } else {
-                        //         txn.remoteObjects = new Set(objectKey);
-                        //     }
-                        // }
+                        if(txn) {
+                            if(txn.remoteObjects) {
+                                txn.remoteObjects.add(objectKey);
+                            } else {
+                                txn.remoteObjects = new Set(objectKey);
+                            }
+                        }
 
                         // grab the document from remote store
                         promises.push(remoteDocService.uploadDocument(documentBody, objectKey, bucket));
@@ -176,7 +176,6 @@ module.exports = function (PersistObjectTemplate) {
                         // only place a reference to the remote object in the database itself - not the actual
                         // contents of the property.
                         pojo[prop] = objectKey;
-
 
                         defineProperty.__remoteObjectKey__ = objectKey;
 
