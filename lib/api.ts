@@ -990,7 +990,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
      * @returns {object} returns transaction object
      */
     PersistObjectTemplate.begin = function (notDefault) {
-        var txn = { id: new Date().getTime(), dirtyObjects: {}, savedObjects: {}, touchObjects: {}, deletedObjects: {} };
+        var txn = { id: new Date().getTime(), dirtyObjects: {}, savedObjects: {}, touchObjects: {}, deletedObjects: {}, S3Keys: [] };
         if (!notDefault) {
             this.currentTransaction = txn;
         }
@@ -1163,20 +1163,20 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
     PersistObjectTemplate.beginTransaction = function () {
         var txn = {
             id: new Date().getTime(), dirtyObjects: {},
-            savedObjects: {}, touchObjects: {}, deletedObjects: {}, deleteQueries: {}
+            savedObjects: {}, touchObjects: {}, deletedObjects: {}, deleteQueries: {},
+            S3Keys: []
         };
         return txn;
     };
 
     PersistObjectTemplate.beginDefaultTransaction = function () {
-        this.__defaultTransaction__ = { id: new Date().getTime(), dirtyObjects: {}, savedObjects: {}, touchObjects: {}, deletedObjects: {} };
+        this.__defaultTransaction__ = { id: new Date().getTime(), dirtyObjects: {}, savedObjects: {}, touchObjects: {}, deletedObjects: {}, S3Keys: [] };
         return this.__defaultTransaction__;
     };
 
     PersistObjectTemplate.commit = async function commit(options) {
         var time = getTime();
         PersistObjectTemplate._validateParams(options, 'commitSchema');
-
         options = options || {};
         var logger = options.logger || PersistObjectTemplate.logger;
 
