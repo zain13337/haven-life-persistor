@@ -1,3 +1,9 @@
+## 3.1.4
+* Fix bad promise handling in a forEach loop by switching to "for of..."
+
+## 3.1.3
+* Exposing objectId and objectTemplateName getters as graphql does not allow accessing properties with underscores.
+
 ## 3.1.2
 * minor fix when checking for similar filters in schema definition.
 
