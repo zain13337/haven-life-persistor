@@ -729,7 +729,6 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
 
         // Legacy
         template.prototype.cascadeSave = function (txn, logger) {
-            var time = getTime();
             var persistObjectTemplate = this.__objectTemplate__ || self;
             persistObjectTemplate.setDirty(this, txn || persistObjectTemplate.currentTransaction, true, false, logger);
         };
