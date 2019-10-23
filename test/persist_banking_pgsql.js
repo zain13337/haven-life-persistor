@@ -51,7 +51,12 @@ var Address = PersistObjectTemplate.create('Address', {
     city:       {type: String, value: '', length: 20},
     state:      {type: String, value: '', length: 20},
     postalCode: {type: String, value: '', length: 20, logChanges: true},
-    country:    {type: String, value: 'US', length: 3}
+    country:    {type: String, value: 'US', length: 3},
+    addressDocument: { type: String,
+        isRemoteObject: true,
+        remoteKeyBase: 'address-remote-key',
+        value: null
+    }
 });
 
 Customer.mixin({
@@ -992,8 +997,12 @@ describe('Banking from pgsql Example', function () {
             customer = c;
             expect(customer.secondaryAddresses[0].city).to.equal('Rhinebeck');
             expect(customer.primaryAddresses[0].city).to.equal('The Big Apple');
+            expect(customer.primaryAddresses[0].addressDocument).to.equal(null);
+
             customer.secondaryAddresses[0].city = 'Red Hook';
             customer.primaryAddresses[0].city = 'New York';
+            customer.primaryAddresses[0].addressDocument = 'Address Document';
+
             txn = PersistObjectTemplate.begin();
             customer.secondaryAddresses[0].setDirty(txn);
             customer.primaryAddresses[0].setDirty(txn);
@@ -1006,6 +1015,7 @@ describe('Banking from pgsql Example', function () {
         }).then(function(customer) {
             expect(customer.secondaryAddresses[0].city).to.equal('Rhinebeck');
             expect(customer.primaryAddresses[0].city).to.equal('The Big Apple');
+            expect(customer.primaryAddresses[0].addressDocument).to.equal(null);
         }).catch(function(e) {
             throw e;
         });
