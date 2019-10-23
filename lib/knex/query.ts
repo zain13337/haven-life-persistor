@@ -322,7 +322,11 @@ module.exports = function (PersistObjectTemplate) {
                     // if we have a remote object type, fetch it and place it in the template
                     if (value && typeof value === 'string') {
                         try {
-                            obj[prop] = await remoteDocService.downloadDocument(value, this.bucketName);
+                            const document = await remoteDocService.downloadDocument(value, this.bucketName);
+
+                            this.withoutChangeTracking(function () {
+                                obj[prop] = document;
+                            });
                         } catch (e) {
                             (logger || this.logger).debug({component: 'persistor', module: 'query', activity: 'getTemplateFromKnexPOJO',
                                 data: `there was a problem downloading the remote object from source. Error: ${e}.`});

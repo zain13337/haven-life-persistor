@@ -1,5 +1,6 @@
 import { RemoteDocService } from '../remote-doc/RemoteDocService';
 import { PersistorTransaction } from '../types/PersistorTransaction';
+import * as uuidv4 from 'uuid/v4';
 
 module.exports = function (PersistObjectTemplate) {
 
@@ -145,7 +146,7 @@ module.exports = function (PersistObjectTemplate) {
                 dataSaved[foreignKey] = pojo[foreignKey] || 'null';
 
             } else if (defineProperty.isRemoteObject && defineProperty.isRemoteObject === true) {
-                const uniqueEnoughIdentifier = Date.now().toString() + Math.random().toString().substring(2);
+                const uniqueIdentifier = uuidv4();
 
                 const remoteObject: string = obj[prop];
 
@@ -156,7 +157,7 @@ module.exports = function (PersistObjectTemplate) {
                     const documentBody = remoteObject;
 
                     // unique identifier to find the object we're saving in the remote store
-                    const objectKey = defineProperty.__remoteObjectKey__ || `${defineProperty.remoteKeyBase}-${uniqueEnoughIdentifier}`;
+                    const objectKey = defineProperty.__remoteObjectKey__ || `${defineProperty.remoteKeyBase}-${uniqueIdentifier}`;
 
                     const bucket = this.bucketName;
 

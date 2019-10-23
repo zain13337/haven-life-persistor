@@ -1241,18 +1241,27 @@ module.exports = function (PersistObjectTemplate) {
 
                     let remoteDocService = RemoteDocService.new(this.environment);
 
-                    persistorTransaction.remoteObjects.forEach(async (key) => {
-                        try {
-                            await remoteDocService.deleteDocument(key, this.bucketName);
-                        } catch (e) {
-                            (logger || this.logger).error({
+                    let toDeletePromiseArr = [];
+
+                    // create our `delete functions` to be run later.
+                    // also put them in one place => toDeletePromiseArr.
+                    for (const key of persistorTransaction.remoteObjects) {
+                        toDeletePromiseArr.push(async () => {
+                            try {
+                                await remoteDocService.deleteDocument(key, this.bucketName);
+                            } catch (e) {
+                                (logger || this.logger).error({
                                     component: 'persistor',
                                     module: 'api',
                                     activity: 'end',
                                     error: e},
-                                'unable to rollback remote document with key:' + key + ' and bucket: ', this.bucketName);
-                        }
-                    });
+                                    'unable to rollback remote document with key:' + key + ' and bucket: ', this.bucketName);
+                            }
+                        });
+                    }
+
+                    // fire off our delete requests in parallel
+                    await Promise.all(toDeletePromiseArr);
                 }
 
                 return knexTransaction.rollback(innerError).then(() => {
