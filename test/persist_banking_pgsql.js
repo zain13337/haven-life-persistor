@@ -35,7 +35,8 @@ var Customer = PersistObjectTemplate.create('Customer', {
     nullNumber:  {type: Number, value: null},
     nullDate:    {type: Date, value: null},
     nullString: {type: String, value: null},
-    bankingDocument: { type: String,
+    bankingDocument: {
+        type: String,
         isRemoteObject: true,
         remoteKeyBase: 'test-remote-key',
         value: 'meh'
@@ -320,7 +321,7 @@ function clearCollection(template) {
 }
 
 describe('Banking from pgsql Example', function () {
-    this.timeout(10000);
+    // this.timeout(10000);
 
     var knex;
     it ('opens the database Postgres', function () {
@@ -1212,8 +1213,6 @@ describe('Banking from pgsql Example', function () {
         }).then(function(customerOutput) {
             expect(customerOutput.bankingDocument).to.equal('meow!');
             done();
-        }).catch(function(e) {
-            done(e);
         });
     });
 
