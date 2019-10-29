@@ -321,8 +321,6 @@ function clearCollection(template) {
 }
 
 describe('Banking from pgsql Example', function () {
-    // this.timeout(10000);
-
     var knex;
     it ('opens the database Postgres', function () {
         return Promise.resolve()
