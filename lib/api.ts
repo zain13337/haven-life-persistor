@@ -922,7 +922,8 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
         
         Object.defineProperty(template.prototype, 'objectTemplateName', {
             get: function () {
-                return this._template;
+                //we need to look at the name for cases when the object is not yet persisted and template is not populated yet
+                return this._template || template.__name__;
             },
             enumerable: true,
             configurable: true
