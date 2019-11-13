@@ -922,7 +922,7 @@ module.exports = function (PersistObjectTemplate, baseClassForPersist) {
         
         Object.defineProperty(template.prototype, 'objectTemplateName', {
             get: function () {
-                return template.__name__;
+                return this.constructor.name || template.__name__;
             },
             enumerable: true,
             configurable: true
