@@ -1,3 +1,6 @@
+## 3.2.2
+* Audit fixes.
+
 ## 3.2.1
 * changing field returned for objectTemplateName to make sure it is returned even when object is not persisted
 
