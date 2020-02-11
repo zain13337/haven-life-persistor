@@ -1,9 +1,11 @@
-## 3.2.2
-* Audit fixes.
 
+## 3.2.3
+* Audit fixes.
+## 3.2.2
+* updating order of operations for multisource rollbacks
+* fixing default method of authentication with aws
 ## 3.2.1
 * changing field returned for objectTemplateName to make sure it is returned even when object is not persisted
-
 ## 3.2.0
 * enable remote storage of data properties (knex path only).
 * local FS and amazon S3 supported out of the box for non-db storage location.
