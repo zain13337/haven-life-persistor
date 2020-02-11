@@ -1306,8 +1306,9 @@ module.exports = function (PersistObjectTemplate) {
                     //When the property type is not an object template, need to compare the values.
                     //for date and object types, need to compare the stringified values.
                     var oldKey = '_ct_org_' + prop;
+                    const replaceNullValuesWithUndefined = function (k, v) { return v === null ? undefined : v; };
                     if (!props[prop].type.isObjectTemplate && (obj[oldKey] != obj[prop] || ((props[prop].type === Date || props[prop].type === Object) &&
-                        JSON.stringify(obj[oldKey], function (k, v) { return v === null ? undefined : v; }) !== JSON.stringify(obj[prop], function (k, v) { return v === null ? undefined : v; }))))  {
+                        JSON.stringify(obj[oldKey], replaceNullValuesWithUndefined) !== JSON.stringify(obj[prop], replaceNullValuesWithUndefined))))  {
                         addChanges(prop, obj[oldKey], obj[prop], prop);
                         obj[oldKey] = obj[prop];
                     }
